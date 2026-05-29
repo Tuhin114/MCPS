@@ -17,12 +17,19 @@ export async function AuthButton() {
       <LogoutButton />
     </div>
   ) : (
-    <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
+    <div className="hidden items-center gap-3 md:flex">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-muted-foreground hover:text-foreground hover:bg-white/5"
+      >
         <Link href="/auth/login">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant={"default"}>
-        <Link href="/auth/sign-up">Sign up</Link>
+      <Button
+        size="sm"
+        className="bg-amber-500 hover:bg-amber-600 text-black font-medium shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all"
+      >
+        <Link href="/auth/sign-up">Get Started</Link>
       </Button>
     </div>
   );
