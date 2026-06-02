@@ -314,3 +314,40 @@ export const securityChecks = [
   { label: "Secure Storage Connected", value: 100, status: "Connected" },
   { label: "Access Control Enabled", value: 88, status: "Enabled" },
 ];
+
+export const DUMMY_FILES = [
+  {
+    id: "1",
+    name: "mountain.jpg",
+    type: "image",
+    size: "2.45 MB",
+    thumbnail:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop",
+  },
+  {
+    id: "2",
+    name: "nature-video.mp4",
+    type: "video",
+    size: "24.5 MB",
+    thumbnail:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop",
+  },
+  {
+    id: "3",
+    name: "presentation.pdf",
+    type: "document",
+    size: "3.2 MB",
+  },
+  {
+    id: "4",
+    name: "music-track.mp3",
+    type: "audio",
+    size: "8.7 MB",
+  },
+  {
+    id: "5",
+    name: "design-doc.docx",
+    type: "document",
+    size: "4.5 MB",
+  },
+];
