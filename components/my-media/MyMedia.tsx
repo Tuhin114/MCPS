@@ -2,22 +2,27 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+
 import { MediaToolbar } from "./media-toolbar";
 import { MediaTable } from "./media-table";
 import type { FileType, MediaStatus } from "@/lib/mcps-data";
 import { MediaPagination } from "./pagination";
-import { useMediaList } from "@/hooks/useMedia";
+import { useDownloadMedia, useMediaList } from "@/hooks/useMedia";
 import { MyMediaItem } from "@/types/media";
 
 const ITEMS_PER_PAGE = 15;
 
 export default function MyMediaPage() {
   const { data: mediaList, isLoading, isError, error } = useMediaList();
+  const { mutate: downloadMedia, error: downloadError } = useDownloadMedia();
+  console.log(downloadError);
 
   const MediaList = useMemo(() => {
     return mediaList ?? [];
   }, [mediaList]);
 
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFileType, setSelectedFileType] = useState<FileType | "all">(
     "all",
@@ -115,8 +120,25 @@ export default function MyMediaPage() {
   };
 
   const handleDownload = (item: MyMediaItem) => {
-    console.log(`Downloading ${item.name}`);
-    // TODO: call download API
+    setDownloadingId(item.id);
+
+    downloadMedia(
+      {
+        id: item.id,
+        file_name: item.file_name,
+      },
+      {
+        onError: (error) => {
+          toast.error(error.message);
+        },
+        onSettled: () => {
+          setDownloadingId(null);
+        },
+        onSuccess: () => {
+          toast.success("Download started");
+        },
+      },
+    );
   };
 
   if (isError) {
@@ -148,13 +170,13 @@ export default function MyMediaPage() {
 
           <MediaTable
             items={paginatedItems}
+            downloadingId={downloadingId}
             isLoading={isLoading}
             onShare={handleShare}
             onUpdate={handleUpdate}
             onDelete={handleDelete}
             onDownload={handleDownload}
           />
-
           {filteredItems.length > 0 && (
             <div className="border-t border-border pt-4">
               <MediaPagination

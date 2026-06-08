@@ -17,11 +17,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { StatusBadge } from "./status-badge";
 import { SharedUsersAvatar } from "./shared-users-avatar";
 import { UpdateDialog } from "./update-dialog";
 import { DeleteDialog } from "./delete-dialog";
-import { Download, MoreHorizontal, Eye } from "lucide-react";
+import { Download, MoreHorizontal, Eye, Loader2 } from "lucide-react";
 
 import { formatFileSize } from "@/lib/dashboard-utils";
 import { formatDate } from "@/lib/helper";
@@ -31,6 +32,7 @@ import { FileTypeBadge } from "./FileTypeBadge";
 
 interface MediaTableProps {
   items: MyMediaItem[];
+  downloadingId?: string | null;
   isLoading?: boolean;
   onShare: (item: MyMediaItem, emails: string[]) => void;
   onUpdate: (
@@ -66,10 +68,7 @@ function ActionsDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {/* View */}
-        <DropdownMenuItem
-          className="gap-2 cursor-pointer"
-          onClick={() => onDownload(item)}
-        >
+        <DropdownMenuItem className="gap-2 cursor-pointer">
           <Eye className="h-4 w-4" />
           View
         </DropdownMenuItem>
@@ -83,7 +82,7 @@ function ActionsDropdown({
           trigger={
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
-              onSelect={(e) => e.preventDefault()} // prevent dropdown closing before dialog opens
+              onSelect={(e) => e.preventDefault()}
             >
               Update
             </DropdownMenuItem>
@@ -110,6 +109,7 @@ function ActionsDropdown({
 
 export function MediaTable({
   items,
+  downloadingId,
   isLoading = false,
   onShare,
   onUpdate,
@@ -263,9 +263,14 @@ export function MediaTable({
                     size="sm"
                     className="h-8 px-2"
                     onClick={() => onDownload(item)}
+                    disabled={downloadingId === item.id}
                     title="Download"
                   >
-                    <Download className="h-4 w-4" />
+                    {downloadingId === item.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
                   </Button>
 
                   <ShareMediaDialog item={item} onShare={onShare} />

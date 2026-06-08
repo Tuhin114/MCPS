@@ -1,3 +1,4 @@
+import { encryptFile, fileToBuffer } from "@/lib/encryption";
 import { getFileType } from "@/lib/helper";
 import {
   AllUsers,
@@ -18,16 +19,35 @@ export async function uploadMedia(
 ): Promise<Media> {
   const ext = file.file.name.split(".").pop() ?? "";
   const generatedFileName = `${uuidv4()}${ext ? `.${ext}` : ""}`;
-  const storagePath = `${userId}/${generatedFileName}`;
   const file_type = getFileType(file.file);
+  const shouldEncrypt = file.encryption ?? false;
 
-  // Upload to storage
+  let uploadBuffer: Buffer = await fileToBuffer(file.file);
+  let storagePath = `${userId}/${generatedFileName}`;
+  let encryptedKey: string | null = null;
+  let ivHex: string | null = null;
+  let encryptionAlgorithm: string | null = null;
+
+  // Encrypt the file if requested
+  if (shouldEncrypt) {
+    const result = encryptFile(uploadBuffer);
+    uploadBuffer = result.encryptedBuffer;
+    encryptedKey = result.encryptedKey;
+    ivHex = result.iv;
+    encryptionAlgorithm = "AES-256-CBC";
+    // Store encrypted files under a separate prefix
+    storagePath = `${userId}/enc_${generatedFileName}`;
+  }
+
+  // Upload to Supabase Storage
   const { error: storageError } = await supabase.storage
     .from(BUCKET)
-    .upload(storagePath, file.file, {
+    .upload(storagePath, uploadBuffer, {
       cacheControl: "3600",
       upsert: false,
-      contentType: file.file.type,
+      // Use octet-stream for encrypted blobs so the browser never tries to
+      // interpret the raw cipher-text as the original mime type.
+      contentType: shouldEncrypt ? "application/octet-stream" : file.file.type,
     });
 
   if (storageError) {
@@ -44,30 +64,24 @@ export async function uploadMedia(
       mime_type: file.file.type,
       storage_path: storagePath,
       size_bytes: file.file.size,
-      is_encrypted: file.encryption ?? false,
+      is_encrypted: shouldEncrypt,
       is_watermarked: file.watermark ?? false,
       watermark_text: file.watermarkText || null,
-      encryption_algorithm: "AES-256-CBC",
-      encrypted_key: "mock_encrypted_key",
-      iv: "mock_iv",
+      encryption_algorithm: encryptionAlgorithm,
+      encrypted_key: encryptedKey, // master-key-wrapped DEK
+      iv: ivHex, // hex IV for file cipher
     })
     .select()
     .single();
 
-  console.log("DB DATA:", data);
-  console.log("DB ERROR:", dbError);
-
-  console.log("Storage Error:", storageError);
-  console.log("Storage Path:", storagePath);
-
   if (dbError) {
+    // Roll back the storage upload to keep things consistent
     await supabase.storage.from(BUCKET).remove([storagePath]);
     throw new Error(`Database insert failed: ${dbError.message}`);
   }
 
   return data as Media;
 }
-
 export async function getMediaList(
   supabase: SupabaseClient,
   userId: string,

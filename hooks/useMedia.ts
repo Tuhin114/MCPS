@@ -78,6 +78,37 @@ async function uploadFile(payload: UploadMediaPayload): Promise<Media> {
   return data.media;
 }
 
+async function downloadFile(
+  media: Pick<MyMediaItem, "id" | "file_name">,
+): Promise<void> {
+  const res = await fetch(`/api/media/${media.id}/content`);
+
+  if (!res.ok) {
+    let message = "Download failed";
+    try {
+      const err: ApiError = await res.json();
+      message = err.error || message;
+    } catch {
+      // ignore JSON parse error
+    }
+    throw new Error(message);
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+
+  // Trigger browser download
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = media.file_name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+
+  // Release the object URL after a short delay
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 async function fetchSharedUsers(): Promise<MySharedUsers[]> {
   const res = await fetch("/api/media/shared-users");
   if (!res.ok) {
@@ -137,6 +168,12 @@ export function useSharedUsers() {
   return useQuery<MySharedUsers[], Error>({
     queryKey: mediaKeys.sharedUsers(),
     queryFn: fetchSharedUsers,
+  });
+}
+
+export function useDownloadMedia() {
+  return useMutation<void, Error, Pick<Media, "id" | "file_name">>({
+    mutationFn: downloadFile,
   });
 }
 
