@@ -1,5 +1,11 @@
 import { getFileType } from "@/lib/helper";
-import { Media, UploadMediaPayload } from "@/types/media";
+import {
+  AllUsers,
+  Media,
+  MyMediaItem,
+  MySharedUsers,
+  UploadMediaPayload,
+} from "@/types/media";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,8 +20,6 @@ export async function uploadMedia(
   const generatedFileName = `${uuidv4()}${ext ? `.${ext}` : ""}`;
   const storagePath = `${userId}/${generatedFileName}`;
   const file_type = getFileType(file.file);
-
-  console.log(file, storagePath);
 
   // Upload to storage
   const { error: storageError } = await supabase.storage
@@ -67,18 +71,16 @@ export async function uploadMedia(
 export async function getMediaList(
   supabase: SupabaseClient,
   userId: string,
-): Promise<Media[]> {
-  const { data, error } = await supabase
-    .from("media")
-    .select("*")
-    .eq("owner_id", userId)
-    .order("created_at", { ascending: false });
+): Promise<MyMediaItem[]> {
+  const { data, error } = await supabase.rpc("get_media_with_shared", {
+    p_user_id: userId,
+  });
 
   if (error) {
     throw new Error(`Failed to fetch media list: ${error.message}`);
   }
 
-  return (data ?? []) as Media[];
+  return data ?? [];
 }
 
 export async function getMediaById(
@@ -162,4 +164,31 @@ export async function deleteMedia(
   if (dbError) {
     throw new Error(`Failed to delete media record: ${dbError.message}`);
   }
+}
+
+export async function getSharedUsers(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<MySharedUsers[]> {
+  const { data, error } = await supabase.rpc("get_shared_users", {
+    p_user_id: userId,
+  });
+
+  if (error) {
+    throw new Error(`Failed to fetch shared users: ${error.message}`);
+  }
+
+  return data.shared_with ?? [];
+}
+
+export async function getAllUsers(
+  supabase: SupabaseClient,
+): Promise<AllUsers[]> {
+  const { data, error } = await supabase.from("profiles").select("*");
+
+  if (error) {
+    throw new Error(`Failed to fetch all users: ${error.message}`);
+  }
+
+  return data ?? [];
 }

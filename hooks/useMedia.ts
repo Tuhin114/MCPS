@@ -8,11 +8,13 @@ import {
 } from "@tanstack/react-query";
 import type {
   Media,
-  MediaListResponse,
-  MediaResponse,
   UploadMediaResponse,
   ApiError,
   UploadMediaPayload,
+  MySharedUsers,
+  AllUsers,
+  MyMediaItem,
+  MediaResponse,
 } from "@/types/media";
 
 // Query keys
@@ -20,16 +22,25 @@ export const mediaKeys = {
   all: ["media"] as const,
   lists: () => [...mediaKeys.all, "list"] as const,
   detail: (id: string) => [...mediaKeys.all, "detail", id] as const,
+  sharedUsers: () => [...mediaKeys.all, "shared-users"] as const,
+  users: () => [...mediaKeys.all, "users"] as const,
+};
+
+type MyMediaResponse = {
+  media: MyMediaItem[];
 };
 
 // Fetch helpers
-async function fetchMediaList(): Promise<Media[]> {
-  const res = await fetch("/api/media/list");
+async function fetchMediaList(): Promise<MyMediaItem[]> {
+  const res = await fetch("/api/media/lists");
+
   if (!res.ok) {
     const err: ApiError = await res.json();
     throw new Error(err.error || "Failed to fetch media list");
   }
-  const data: MediaListResponse = await res.json();
+
+  const data: MyMediaResponse = await res.json();
+
   return data.media;
 }
 
@@ -67,11 +78,32 @@ async function uploadFile(payload: UploadMediaPayload): Promise<Media> {
   return data.media;
 }
 
+async function fetchSharedUsers(): Promise<MySharedUsers[]> {
+  const res = await fetch("/api/media/shared-users");
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to fetch shared users");
+  }
+  const data = await res.json();
+  return data.shared_users ?? [];
+}
+
+export async function getUser(email: string): Promise<AllUsers[]> {
+  const res = await fetch(`/api/media/all-users?email=${email}`);
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to fetch users");
+  }
+
+  return await res.json();
+}
+
 // Hooks
 export function useMediaList(
-  options?: Omit<UseQueryOptions<Media[], Error>, "queryKey" | "queryFn">,
+  options?: Omit<UseQueryOptions<MyMediaItem[], Error>, "queryKey" | "queryFn">,
 ) {
-  return useQuery<Media[], Error>({
+  return useQuery<MyMediaItem[], Error>({
     queryKey: mediaKeys.lists(),
     queryFn: fetchMediaList,
     ...options,
@@ -100,3 +132,18 @@ export function useUploadMedia() {
     },
   });
 }
+
+export function useSharedUsers() {
+  return useQuery<MySharedUsers[], Error>({
+    queryKey: mediaKeys.sharedUsers(),
+    queryFn: fetchSharedUsers,
+  });
+}
+
+// export function useGetUser(email: string) {
+//   return useQuery<AllUsers[], Error>({
+//     queryKey: ["users", email],
+//     queryFn: () => getUser(email),
+//     enabled: !!email.trim(),
+//   });
+// }

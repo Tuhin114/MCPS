@@ -31,19 +31,19 @@ export const mainNav: NavItem[] = [
   },
   {
     title: "My Media",
-    href: "/media",
+    href: "/protected/my-media",
     icon: FolderLock,
     subtitle: "Browse your secured library",
   },
   {
     title: "Shared With Me",
-    href: "/shared",
+    href: "/protected/shared",
     icon: Users,
     subtitle: "Content others shared with you",
   },
   {
     title: "Activity Log",
-    href: "/activity",
+    href: "/protected/activity",
     icon: ScrollText,
     subtitle: "Full audit trail of events",
   },
