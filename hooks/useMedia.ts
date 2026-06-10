@@ -22,6 +22,7 @@ export const mediaKeys = {
   all: ["media"] as const,
   lists: () => [...mediaKeys.all, "list"] as const,
   detail: (id: string) => [...mediaKeys.all, "detail", id] as const,
+  viewContent: (id: string) => [...mediaKeys.all, "view-content", id] as const,
   sharedUsers: () => [...mediaKeys.all, "shared-users"] as const,
   users: () => [...mediaKeys.all, "users"] as const,
 };
@@ -29,6 +30,15 @@ export const mediaKeys = {
 type MyMediaResponse = {
   media: MyMediaItem[];
 };
+
+export interface ViewContentResponse {
+  /** Media metadata (sensitive encryption fields stripped server-side) */
+  media: Omit<Media, "encrypted_key" | "iv">;
+  /** URL to call for the actual file bytes — /api/media/[id]/content?inline=1 */
+  contentUrl: string;
+  /** Effective permission for the current user */
+  permission: "owner" | "view" | "download";
+}
 
 // Fetch helpers
 async function fetchMediaList(): Promise<MyMediaItem[]> {
@@ -109,6 +119,19 @@ async function downloadFile(
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
+/**
+ * Fetch metadata + content URL for the view-content page.
+ * Does NOT stream the file — the viewer uses contentUrl directly.
+ */
+async function fetchViewContent(id: string): Promise<ViewContentResponse> {
+  const res = await fetch(`/api/media/${id}/view-content`);
+  if (!res.ok) {
+    const err: ApiError = await res.json();
+    throw new Error(err.error || "Failed to load file");
+  }
+  return res.json();
+}
+
 async function fetchSharedUsers(): Promise<MySharedUsers[]> {
   const res = await fetch("/api/media/shared-users");
   if (!res.ok) {
@@ -177,10 +200,28 @@ export function useDownloadMedia() {
   });
 }
 
-// export function useGetUser(email: string) {
-//   return useQuery<AllUsers[], Error>({
-//     queryKey: ["users", email],
-//     queryFn: () => getUser(email),
-//     enabled: !!email.trim(),
-//   });
-// }
+/**
+ * Fetches media metadata and the inline content URL for the viewer page.
+ * Works for both file owners and shared-with users.
+ *
+ * Usage:
+ *   const { data, isLoading, isError } = useViewContent(mediaId);
+ *    data.contentUrl  → pass directly to <img src> / <iframe src> / fetch()
+ *    data.media       → file_name, mime_type, size_bytes, is_encrypted, etc.
+ *    data.permission  → "owner" | "view" | "download"
+ */
+export function useViewContent(
+  id: string,
+  options?: Omit<
+    UseQueryOptions<ViewContentResponse, Error>,
+    "queryKey" | "queryFn"
+  >,
+) {
+  return useQuery<ViewContentResponse, Error>({
+    queryKey: mediaKeys.viewContent(id),
+    queryFn: () => fetchViewContent(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+    ...options,
+  });
+}

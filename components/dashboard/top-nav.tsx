@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
-import { Bell, Search } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { Bell, Search } from "lucide-react";
+import { usePathname } from "next/navigation";
 
-import { getNavMeta } from "@/lib/nav"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { getNavMeta } from "@/lib/nav";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,20 +14,23 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export function TopNav() {
-  const pathname = usePathname()
-  const meta = getNavMeta(pathname)
+  const pathname = usePathname();
+  const meta = getNavMeta(pathname);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background/70 px-4 backdrop-blur-xl md:px-6">
       <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground" />
-      <Separator orientation="vertical" className="mr-1 h-5" />
 
       <div className="flex flex-col">
-        <h1 className="text-sm font-semibold leading-none tracking-tight">{meta.title}</h1>
-        <p className="mt-1 hidden text-[11px] text-muted-foreground sm:block">{meta.subtitle}</p>
+        <h1 className="text-sm font-semibold leading-none tracking-tight">
+          {meta.title}
+        </h1>
+        <p className="mt-1 hidden text-[11px] text-muted-foreground sm:block">
+          {meta.subtitle}
+        </p>
       </div>
 
       <div className="ml-auto flex items-center gap-2">
@@ -64,7 +66,9 @@ export function TopNav() {
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuLabel className="flex flex-col gap-0.5">
               <span className="text-sm">Avery Chen</span>
-              <span className="text-xs font-normal text-muted-foreground">avery@mcps.io</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                avery@mcps.io
+              </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -78,5 +82,5 @@ export function TopNav() {
         </DropdownMenu>
       </div>
     </header>
-  )
+  );
 }

@@ -27,8 +27,12 @@ import { Download, MoreHorizontal, Eye, Loader2 } from "lucide-react";
 import { formatFileSize } from "@/lib/dashboard-utils";
 import { formatDate } from "@/lib/helper";
 import { ShareMediaDialog } from "./share-dialog";
-import { MyMediaItem } from "@/types/media";
+import { Media, MyMediaItem } from "@/types/media";
 import { FileTypeBadge } from "./FileTypeBadge";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDownloadMedia, useViewContent } from "@/hooks/useMedia";
+import { MediaViewerDrawer } from "./media-view-drawer";
 
 interface MediaTableProps {
   items: MyMediaItem[];
@@ -50,13 +54,13 @@ function ActionsDropdown({
   item,
   onUpdate,
   onDelete,
-  onDownload,
+  onView,
 }: {
   item: MyMediaItem;
   onShare: (item: MyMediaItem, emails: string[]) => void;
   onUpdate: MediaTableProps["onUpdate"];
   onDelete: (item: MyMediaItem) => void;
-  onDownload: (item: MyMediaItem) => void;
+  onView: (item: MyMediaItem) => void;
 }) {
   return (
     <DropdownMenu>
@@ -68,7 +72,10 @@ function ActionsDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {/* View */}
-        <DropdownMenuItem className="gap-2 cursor-pointer">
+        <DropdownMenuItem
+          className="gap-2 cursor-pointer"
+          onClick={() => onView(item)}
+        >
           <Eye className="h-4 w-4" />
           View
         </DropdownMenuItem>
@@ -116,7 +123,21 @@ export function MediaTable({
   onDelete,
   onDownload,
 }: MediaTableProps) {
-  console.log(items);
+  const [viewingId, setViewingId] = useState<string | null>(null);
+  const {
+    data: viewData,
+    isLoading: isViewLoading,
+    isError: isViewError,
+    error: viewError,
+  } = useViewContent(viewingId ?? "", {
+    enabled: !!viewingId, // don't fetch until drawer opens
+  });
+  const { mutate: download, isPending: isDownloading } = useDownloadMedia();
+
+  const handleView = async (media: MyMediaItem) => {
+    setViewingId(media.id);
+  };
+
   if (isLoading) {
     return (
       <div className="border border-border rounded-lg overflow-hidden">
@@ -280,7 +301,7 @@ export function MediaTable({
                     onShare={onShare}
                     onUpdate={onUpdate}
                     onDelete={onDelete}
-                    onDownload={onDownload}
+                    onView={handleView}
                   />
                 </div>
               </TableCell>
@@ -288,6 +309,16 @@ export function MediaTable({
           ))}
         </TableBody>
       </Table>
+      <MediaViewerDrawer
+        open={!!viewingId}
+        onClose={() => setViewingId(null)}
+        data={viewData}
+        isLoading={isViewLoading}
+        isError={isViewError}
+        error={viewError}
+        isDownloading={isDownloading}
+        onDownload={download}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { encryptFile, fileToBuffer } from "@/lib/encryption";
 import { getFileType } from "@/lib/helper";
+import { applyWatermark } from "@/lib/watermark/watermark";
 import {
   AllUsers,
   Media,
@@ -27,6 +28,15 @@ export async function uploadMedia(
   let encryptedKey: string | null = null;
   let ivHex: string | null = null;
   let encryptionAlgorithm: string | null = null;
+
+  // Watermark first
+  if (file.watermark && file.watermarkText) {
+    uploadBuffer = await applyWatermark(
+      uploadBuffer,
+      file.file.type,
+      file.watermarkText,
+    );
+  }
 
   // Encrypt the file if requested
   if (shouldEncrypt) {

@@ -8,6 +8,7 @@ export interface Media {
   size_bytes: number;
   is_encrypted: boolean;
   is_watermarked: boolean;
+  download_count?: number;
   watermark_text: string | null;
   encryption_algorithm: string | null;
   encrypted_key: string | null;
