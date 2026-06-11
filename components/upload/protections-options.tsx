@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface ProtectionOptionsProps {
+  settings: ProtectionSettings;
   onOptionsChange: (options: ProtectionSettings) => void;
 }
 
@@ -18,32 +19,37 @@ export interface ProtectionSettings {
 }
 
 export default function ProtectionOptions({
+  settings,
   onOptionsChange,
 }: ProtectionOptionsProps) {
-  const [settings, setSettings] = useState<ProtectionSettings>({
-    encryptFile: true,
-    addWatermark: true,
-    watermarkText: "© My Content - All Rights Reserved",
-  });
-
   const handleEncryptChange = (checked: boolean) => {
-    const newSettings = { ...settings, encryptFile: checked };
-    setSettings(newSettings);
-    onOptionsChange(newSettings);
-  };
+    if (!checked) {
+      toast.error(
+        "Switching off encryption will make the media publicly accessible to anyone with a shareable link.",
+      );
+    }
 
+    onOptionsChange({
+      ...settings,
+      encryptFile: checked,
+      addWatermark: checked,
+    });
+  };
   const handleWatermarkChange = (checked: boolean) => {
-    const newSettings = { ...settings, addWatermark: checked };
-    setSettings(newSettings);
-    onOptionsChange(newSettings);
+    if (!settings.encryptFile) return;
+
+    onOptionsChange({
+      ...settings,
+      addWatermark: checked,
+    });
   };
 
   const handleTextChange = (text: string) => {
-    const newSettings = { ...settings, watermarkText: text };
-    setSettings(newSettings);
-    onOptionsChange(newSettings);
+    onOptionsChange({
+      ...settings,
+      watermarkText: text,
+    });
   };
-
   return (
     <Card className="border-border bg-card p-5">
       <h2 className="mb-5 text-lg font-semibold text-foreground">
@@ -86,6 +92,7 @@ export default function ProtectionOptions({
 
             <Switch
               checked={settings.addWatermark}
+              disabled={!settings.encryptFile}
               onCheckedChange={handleWatermarkChange}
             />
           </div>
@@ -103,7 +110,7 @@ export default function ProtectionOptions({
               <Input
                 value={settings.watermarkText}
                 onChange={(e) => handleTextChange(e.target.value)}
-                disabled={!settings.addWatermark}
+                disabled={!settings.encryptFile || !settings.addWatermark}
                 className="
                 border-primary/20
                 bg-background
@@ -126,11 +133,23 @@ export default function ProtectionOptions({
                 className="h-full w-full object-cover"
               />
 
-              <div className="absolute inset-x-2 bottom-2">
-                <div className="rounded bg-black/60 px-2 py-1 text-[10px] text-white backdrop-blur-sm truncate">
-                  {settings.watermarkText}
+              {settings.addWatermark && (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="absolute text-white/15 text-[10px] font-bold"
+                      style={{
+                        left: `${(i % 4) * 25}%`,
+                        top: `${Math.floor(i / 4) * 20}%`,
+                        transform: "rotate(-30deg)",
+                      }}
+                    >
+                      {settings.watermarkText}
+                    </span>
+                  ))}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

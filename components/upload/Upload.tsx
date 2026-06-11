@@ -38,9 +38,6 @@ const getFileType = (file: File): "image" | "video" | "audio" | "document" => {
 };
 
 export default function UploadMediaPage() {
-  // const [files, setFiles] = useState<UploadedFile[]>(
-  //   DUMMY_FILES as UploadedFile[],
-  // );
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [protectionSettings, setProtectionSettings] =
     useState<ProtectionSettings>({
@@ -98,9 +95,9 @@ export default function UploadMediaPage() {
         files.map((item) =>
           uploadMedia({
             file: item.file,
-            encryption: item.encryption,
-            watermark: item.watermark,
-            watermarkText: item.watermarkText,
+            encryption: protectionSettings.encryptFile,
+            watermark: protectionSettings.addWatermark,
+            watermarkText: protectionSettings.watermarkText,
           }),
         ),
       );
@@ -169,7 +166,10 @@ export default function UploadMediaPage() {
           )}
 
           {/* Protection Options */}
-          <ProtectionOptions onOptionsChange={handleProtectionChange} />
+          <ProtectionOptions
+            settings={protectionSettings}
+            onOptionsChange={handleProtectionChange}
+          />
 
           {/* Upload Button */}
           <div className="flex justify-start pt-4">
