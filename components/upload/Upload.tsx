@@ -9,6 +9,8 @@ import UploadArea from "./upload-area";
 import FileCard from "./file-card";
 import ProtectionOptions, { ProtectionSettings } from "./protections-options";
 import { useUploadMedia } from "@/hooks/useMedia";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface UploadedFile {
   id: string;
@@ -48,6 +50,7 @@ export default function UploadMediaPage() {
   const [isUploading, setIsUploading] = useState(false);
 
   const { mutateAsync: uploadMedia } = useUploadMedia();
+  const router = useRouter();
 
   const handleFilesSelected = (newFiles: File[]) => {
     const mappedFiles: UploadedFile[] = newFiles.map((file) => ({
@@ -84,9 +87,7 @@ export default function UploadMediaPage() {
   };
 
   const handleUpload = async () => {
-    if (files.length === 0) {
-      return;
-    }
+    if (!files.length) return;
 
     setIsUploading(true);
 
@@ -110,13 +111,26 @@ export default function UploadMediaPage() {
         (result) => result.status === "rejected",
       ).length;
 
-      console.log(`${successfulUploads} uploaded, ${failedUploads} failed`);
-
       if (successfulUploads > 0) {
+        toast.success(
+          `${successfulUploads} file${successfulUploads > 1 ? "s" : ""} uploaded successfully`,
+        );
+      }
+
+      if (failedUploads > 0) {
+        toast.error(
+          `${failedUploads} file${failedUploads > 1 ? "s" : ""} failed to upload`,
+        );
+      }
+
+      // Clear files only if all uploads succeeded
+      if (failedUploads === 0) {
         setFiles([]);
+        router.push("/protected/my-media");
       }
     } catch (error) {
       console.error(error);
+      toast.error("Something went wrong while uploading files");
     } finally {
       setIsUploading(false);
     }

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { ShieldCheck } from "lucide-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 
 import {
   Sidebar,
@@ -17,15 +17,18 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { mainNav, accountNav, type NavItem } from "@/lib/nav"
+} from "@/components/ui/sidebar";
+import { mainNav, accountNav, type NavItem } from "@/lib/nav";
 
 export function AppSidebar() {
-  const pathname = usePathname()
-  const { setOpenMobile, isMobile } = useSidebar()
+  const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const renderItem = (item: NavItem) => {
-    const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
+    const isActive =
+      item.href === "/protected"
+        ? pathname === "/protected"
+        : pathname.startsWith(item.href);
     return (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton
@@ -34,14 +37,17 @@ export function AppSidebar() {
           tooltip={item.title}
           className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium data-[active=true]:shadow-[inset_0_0_0_1px_var(--color-primary)] data-[active=true]:shadow-primary/20"
         >
-          <Link href={item.href} onClick={() => isMobile && setOpenMobile(false)}>
+          <Link
+            href={item.href}
+            onClick={() => isMobile && setOpenMobile(false)}
+          >
             <item.icon className="size-4" />
             <span>{item.title}</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
-    )
-  }
+    );
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -51,8 +57,12 @@ export function AppSidebar() {
             <ShieldCheck className="size-4.5 text-primary" />
           </div>
           <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">MCPS</span>
-            <span className="text-[11px] text-muted-foreground">Content Protection</span>
+            <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">
+              MCPS
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              Content Protection
+            </span>
           </div>
         </Link>
       </SidebarHeader>
@@ -83,5 +93,5 @@ export function AppSidebar() {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

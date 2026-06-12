@@ -120,8 +120,8 @@ export function MediaTable({ items, isLoading }: MediaTableProps) {
 
   return (
     <div className="border border-border rounded-lg overflow-x-auto bg-card">
-      <Table>
-        <TableHeader>
+      <Table className="min-w-full table-auto border-collapse border-spacing-0 ">
+        <TableHeader className="border-border p-2 bg-card">
           <TableRow className="border-border bg-muted/40">
             <TableHead className="text-foreground font-semibold">
               Name
@@ -185,7 +185,8 @@ export function MediaTable({ items, isLoading }: MediaTableProps) {
                 <div className="flex items-center justify-end gap-1">
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
+                    className="text-xs font-semibold text-muted-foreground hover:text-primary/80"
                     onClick={() => handleView(item)}
                   >
                     View

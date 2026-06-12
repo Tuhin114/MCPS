@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Upload } from "lucide-react";
-import type { FileType, MediaStatus } from "@/lib/mcps-data";
+import { MediaStatus, FileType } from "@/types/media";
+import Link from "next/link";
 
 interface MediaToolbarProps {
   onSearch: (query: string) => void;
@@ -99,7 +100,7 @@ export function MediaToolbar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="fully-protected">Fully Protected</SelectItem>
+              <SelectItem value="fully-protected">Protected</SelectItem>
               <SelectItem value="encrypted">Encrypted</SelectItem>
               <SelectItem value="public">Public</SelectItem>
             </SelectContent>
@@ -109,7 +110,7 @@ export function MediaToolbar({
         {/* Upload Button */}
         <Button className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-foreground gap-2">
           <Upload className="h-4 w-4" />
-          Upload New
+          <Link href="/protected/upload"> Upload New</Link>
         </Button>
       </div>
     </div>

@@ -18,6 +18,8 @@ export interface Media {
 
 export type Permission = "view" | "download";
 
+export type MediaStatus = "all" | "protected" | "encrypted" | "public";
+
 export interface MyMediaItem {
   id: string;
   file_name: string;

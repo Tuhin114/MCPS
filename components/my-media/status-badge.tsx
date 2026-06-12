@@ -17,7 +17,7 @@ export function StatusBadge({
         className="gap-1.5 bg-blue-500/30  text-white border-400 border-blue-500/20"
       >
         <Shield className="h-3 w-3" />
-        Watermarked
+        Protected
       </Badge>
     );
   }

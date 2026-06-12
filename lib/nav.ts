@@ -19,7 +19,7 @@ export interface NavItem {
 export const mainNav: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/protected/",
+    href: "/protected",
     icon: LayoutDashboard,
     subtitle: "Overview of your protected media",
   },

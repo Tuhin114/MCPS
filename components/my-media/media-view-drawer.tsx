@@ -23,6 +23,7 @@ import type { useViewContent, useDownloadMedia } from "@/hooks/useMedia";
 import { DialogTitle } from "../ui/dialog";
 import dynamic from "next/dynamic";
 import DocxViewer from "../viewers/docx-viewer";
+import { cn } from "@/lib/utils";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -90,15 +91,33 @@ function FileTypeBadge({ fileType }: { fileType: string }) {
   return <span className={`font-medium capitalize ${color}`}>{fileType}</span>;
 }
 
-function ImageViewer({ src, alt }: { src: string; alt: string }) {
+function ImageViewer({
+  src,
+  alt,
+  watermark,
+}: {
+  src: string;
+  alt: string;
+  watermark: string;
+}) {
   return (
-    <div className="flex items-center justify-center w-full h-full bg-black rounded-xl overflow-hidden">
+    <div
+      className="relative flex items-center justify-center w-full h-full bg-black rounded-xl overflow-hidden"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
-        className="max-w-full max-h-full object-contain"
+        draggable={false}
+        className="max-w-full max-h-full object-contain select-none"
       />
+
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <p className="text-white/10 text-4xl font-bold rotate-[-30deg]">
+          {watermark}
+        </p>
+      </div>
     </div>
   );
 }
@@ -278,15 +297,55 @@ export function MediaViewerDrawer({
   const viewerKind = media ? resolveViewerKind(media.mime_type) : null;
   const canDownload = permission === "owner" || permission === "download";
 
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
+
+  useEffect(() => {
+    const threshold = 160;
+
+    const detect = () => {
+      const opened =
+        window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold;
+
+      setDevToolsOpen(opened);
+    };
+
+    const interval = setInterval(detect, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleDownload = () => {
     if (!media) return;
     onDownload({ id: media.id, file_name: media.file_name });
   };
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
+        (e.ctrlKey && e.key === "s")
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   return (
     <Drawer open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogTitle></DialogTitle>
-      <DrawerContent className="h-full flex flex-col rounded-t-2xl overflow-hidden focus:outline-none">
+      {/* <DrawerContent className="h-full flex flex-col rounded-t-2xl overflow-hidden focus:outline-none"> */}
+      <DrawerContent
+        className={cn(
+          "h-full flex flex-col rounded-t-2xl overflow-hidden focus:outline-none",
+          devToolsOpen && "blur-xl",
+        )}
+      >
         {/* ── Top bar ── */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3 flex-shrink-0">
           <h2 className="text-base font-semibold text-foreground truncate max-w-[60%]">
@@ -319,9 +378,23 @@ export function MediaViewerDrawer({
               )}
 
               {!isLoading && data && media && contentUrl && viewerKind && (
-                <div className="h-full rounded-xl overflow-hidden bg-black/40 border border-border/50">
+                <div
+                  className={cn(
+                    "h-full rounded-xl overflow-hidden bg-black/40 border border-border/50",
+                    devToolsOpen && "blur-xl",
+                  )}
+                >
+                  {devToolsOpen && (
+                    <div className="absolute inset-0 flex items-center justify-center z-50">
+                      Developer tools detected
+                    </div>
+                  )}
                   {viewerKind === "image" && (
-                    <ImageViewer src={contentUrl} alt={media.file_name} />
+                    <ImageViewer
+                      src={contentUrl}
+                      alt={media.file_name}
+                      watermark={`${new Date().toLocaleString()}`}
+                    />
                   )}
                   {viewerKind === "video" && <VideoViewer src={contentUrl} />}
                   {viewerKind === "audio" && <AudioViewer src={contentUrl} />}

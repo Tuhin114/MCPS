@@ -257,6 +257,7 @@ export function ShareMediaDialog({
       item,
       visibleUsers.map((u) => u.shared_user_email),
     );
+    toast.success("Media shared successfully");
     setOpen(false);
   };
 

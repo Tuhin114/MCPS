@@ -3,19 +3,17 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-
 import { MediaToolbar } from "./media-toolbar";
 import { MediaTable } from "./media-table";
-import type { FileType, MediaStatus } from "@/lib/mcps-data";
 import { MediaPagination } from "./pagination";
 import { useDownloadMedia, useMediaList } from "@/hooks/useMedia";
-import { MyMediaItem } from "@/types/media";
+import { MyMediaItem, MediaStatus, FileType } from "@/types/media";
 
 const ITEMS_PER_PAGE = 15;
 
 export default function MyMediaPage() {
   const { data: mediaList, isLoading, isError, error } = useMediaList();
-  const { mutate: downloadMedia, error: downloadError } = useDownloadMedia();
+  const { mutate: downloadMedia } = useDownloadMedia();
 
   const MediaList = useMemo(() => {
     return mediaList ?? [];
@@ -50,13 +48,34 @@ export default function MyMediaPage() {
     return mediaItems.filter((item) => {
       const matchesSearch =
         searchQuery === "" ||
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        item.file_name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFileType =
-        selectedFileType === "all" || item.fileType === selectedFileType;
-      const matchesStatus =
-        selectedStatus === "all" || item.status === selectedStatus;
-      return matchesSearch && matchesFileType && matchesStatus;
+        selectedFileType === "all" || item.file_type === selectedFileType;
+      if (selectedStatus === "all") {
+        return matchesSearch && matchesFileType;
+      } else if (selectedStatus === "public") {
+        return (
+          matchesSearch &&
+          matchesFileType &&
+          item.is_encrypted === false &&
+          item.is_watermarked === false
+        );
+      } else if (selectedStatus === "encrypted") {
+        return (
+          matchesSearch &&
+          matchesFileType &&
+          item.is_encrypted === true &&
+          item.is_watermarked === false
+        );
+      } else if (selectedStatus === "protected") {
+        return (
+          matchesSearch &&
+          matchesFileType &&
+          item.is_encrypted === true &&
+          item.is_watermarked === true
+        );
+      }
+      return matchesSearch && matchesFileType;
     });
   }, [mediaItems, searchQuery, selectedFileType, selectedStatus]);
 
@@ -92,7 +111,7 @@ export default function MyMediaPage() {
   }, []);
 
   const handleShare = (item: MyMediaItem, emails: string[]) => {
-    console.log(`Sharing ${item.name} with:`, emails);
+    console.log(`Sharing ${item.file_name} with:`, emails);
     // TODO: call share API
   };
 
@@ -112,10 +131,14 @@ export default function MyMediaPage() {
         watermark_text: watermarkText,
       },
     }));
+    // Toast
+    toast.success("Media updated successfully");
   };
 
   const handleDelete = (item: MyMediaItem) => {
     setDeletedIds((prev) => new Set(prev).add(item.id));
+    // Toast
+    toast.success("Media deleted successfully");
   };
 
   const handleDownload = (item: MyMediaItem) => {

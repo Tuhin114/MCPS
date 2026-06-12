@@ -9,14 +9,6 @@ export interface MediaFile {
   protected: boolean;
 }
 
-export type FileType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "pdf"
-  | "presentation";
-
 export interface SharedUser {
   id: string;
   name: string;
@@ -24,21 +16,6 @@ export interface SharedUser {
   avatar?: string;
   permissions: ("view" | "download")[];
   isNew?: boolean;
-}
-
-export interface MediaItem {
-  id: string;
-  name: string;
-  fileType: FileType;
-  size: number;
-  status: MediaStatus;
-  uploadedDate: Date;
-  lastModified: Date;
-  sharedWith: SharedUser[];
-  description?: string;
-  encrypted?: boolean;
-  watermarked?: boolean;
-  watermarkText?: string;
 }
 
 export const stats = [
