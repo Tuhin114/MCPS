@@ -89,12 +89,15 @@ export async function GET(
       .from(BUCKET)
       .download(media.storage_path);
 
+    console.log(storageError);
     if (storageError || !blob) {
       return NextResponse.json(
         { error: `Storage error: ${storageError?.message}` },
         { status: 500 },
       );
     }
+
+    console.log(media);
 
     //  5. Decrypt if needed
     let fileBuffer: Buffer;

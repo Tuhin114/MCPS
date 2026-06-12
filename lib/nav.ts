@@ -37,7 +37,7 @@ export const mainNav: NavItem[] = [
   },
   {
     title: "Shared With Me",
-    href: "/protected/shared",
+    href: "/protected/share-with-me",
     icon: Users,
     subtitle: "Content others shared with you",
   },

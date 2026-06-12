@@ -16,7 +16,6 @@ const ITEMS_PER_PAGE = 15;
 export default function MyMediaPage() {
   const { data: mediaList, isLoading, isError, error } = useMediaList();
   const { mutate: downloadMedia, error: downloadError } = useDownloadMedia();
-  console.log(downloadError);
 
   const MediaList = useMemo(() => {
     return mediaList ?? [];

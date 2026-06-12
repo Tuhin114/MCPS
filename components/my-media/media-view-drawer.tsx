@@ -423,6 +423,7 @@ export function MediaViewerDrawer({
                     label="Uploaded On"
                     value={formatDate(media.created_at)}
                   />
+
                   {typeof media.download_count === "number" && (
                     <DetailRow
                       icon={<Download className="h-4 w-4" />}
@@ -474,13 +475,6 @@ export function MediaViewerDrawer({
                       {isDownloading ? "Downloading…" : "Download File"}
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2 border-border"
-                  >
-                    <Users className="h-4 w-4" />
-                    Manage Sharing
-                  </Button>
                 </div>
               </>
             ) : null}

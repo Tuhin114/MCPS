@@ -73,6 +73,11 @@ export async function updateSharePermission(
   shareId: string,
   payload: UpdateSharePermissionPayload,
 ): Promise<UpdateSharePermissionResponse> {
+  console.log({
+    mediaId,
+    shareId,
+    payload,
+  });
   const res = await fetch(`/api/media/${mediaId}/share/${shareId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },

@@ -17,9 +17,6 @@ export async function getDashboardData(userId: string) {
       .limit(10),
   ]);
 
-  //   console.log("Media Result:", mediaResult);
-  //   console.log("Activity Result:", activityResult);
-
   if (mediaResult.error) {
     throw new Error(mediaResult.error.message);
   }

@@ -23,6 +23,7 @@ import { SuggestionsDropdown } from "./SuggestionsDropdown";
 import { UserRow } from "./UserRow";
 import { LocalSharedUsers, MyMediaItem, Permission } from "@/types/media";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ShareMediaDialogProps {
   item: MyMediaItem;
@@ -37,6 +38,7 @@ export function ShareMediaDialog({
   trigger,
   onDialogClose,
 }: ShareMediaDialogProps) {
+  const queryClient = useQueryClient();
   const { data: MySharedWithUsers, isLoading: isLoadingSuggestions } =
     useSharedUsers();
 
@@ -238,6 +240,19 @@ export function ShareMediaDialog({
     }
 
     await Promise.all(ops);
+
+    setSharedUsers((prev) =>
+      prev.map((u) => ({
+        ...u,
+        isNew: false,
+        permissionChanged: false,
+      })),
+    );
+
+    await queryClient.invalidateQueries({
+      queryKey: ["media"],
+    });
+
     onShare?.(
       item,
       visibleUsers.map((u) => u.shared_user_email),
