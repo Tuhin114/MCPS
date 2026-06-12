@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { useUpdateMedia } from "@/hooks/useMediaAction";
 import { MyMediaItem } from "@/types/media";
+import { toast } from "sonner";
 
 interface UpdateDialogProps {
   item: MyMediaItem;
@@ -48,6 +49,35 @@ export function UpdateDialog({
     if (isPending) return;
     setOpen(val);
     if (!val) onDialogClose?.();
+  };
+
+  const handleEncryptionChange = (checked: boolean) => {
+    if (!checked) {
+      toast.warning(
+        "Switching off encryption will make the media public. Anyone with a shareable link can access it. But your watermark will still be visible.",
+      );
+    }
+
+    setEncrypted(checked);
+
+    // Encryption OFF => disable watermark
+    if (!checked) {
+      setWatermarked(false);
+    }
+
+    // Encryption ON => enable watermark
+    if (checked) {
+      setWatermarked(true);
+    }
+  };
+
+  const handleWatermarkChange = (checked: boolean) => {
+    if (!encrypted) {
+      toast.warning("Enable encryption before enabling watermark protection.");
+      return;
+    }
+
+    setWatermarked(checked);
   };
 
   const handleUpdate = () => {
@@ -114,7 +144,7 @@ export function UpdateDialog({
               <Switch
                 id="encryption"
                 checked={encrypted}
-                onCheckedChange={setEncrypted}
+                onCheckedChange={handleEncryptionChange}
                 disabled={isPending}
               />
             </div>
@@ -132,8 +162,8 @@ export function UpdateDialog({
               <Switch
                 id="watermark"
                 checked={watermarked}
-                onCheckedChange={setWatermarked}
-                disabled={isPending}
+                onCheckedChange={handleWatermarkChange}
+                disabled={isPending || !encrypted}
               />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -149,7 +179,7 @@ export function UpdateDialog({
                   onChange={(e) => setWatermarkText(e.target.value)}
                   placeholder="e.g., CONFIDENTIAL"
                   className="bg-surface border-border text-xs"
-                  disabled={isPending}
+                  disabled={isPending || !encrypted || !watermarked}
                 />
               </div>
             )}

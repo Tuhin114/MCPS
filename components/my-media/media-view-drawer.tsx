@@ -271,8 +271,6 @@ export function MediaViewerDrawer({
   isDownloading,
   onDownload,
 }: MediaViewerDrawerProps) {
-  console.log("[MediaViewerDrawer] render →", { open, data, isLoading });
-
   const media = data?.media;
   const contentUrl = data?.contentUrl;
   const permission = data?.permission;

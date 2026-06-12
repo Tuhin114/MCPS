@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Share2, Search, Users, UserPlus, Loader2 } from "lucide-react";
+import { Share2, Search, Users, UserPlus, Loader2, Globe } from "lucide-react";
 import { isValidEmail } from "@/lib/helper";
 import { getUser, useSharedUsers } from "@/hooks/useMedia";
 import {
@@ -22,6 +22,7 @@ import {
 import { SuggestionsDropdown } from "./SuggestionsDropdown";
 import { UserRow } from "./UserRow";
 import { LocalSharedUsers, MyMediaItem, Permission } from "@/types/media";
+import { toast } from "sonner";
 
 interface ShareMediaDialogProps {
   item: MyMediaItem;
@@ -244,6 +245,14 @@ export function ShareMediaDialog({
     setOpen(false);
   };
 
+  const handleCopyPublicLink = async () => {
+    const link = `${window.location.origin}/public/${item.id}/view-content`;
+
+    await navigator.clipboard.writeText(link);
+
+    toast.success("Public link copied to clipboard");
+  };
+
   const handleOpenChange = (val: boolean) => {
     if (isSaving) return;
     setOpen(val);
@@ -331,6 +340,36 @@ export function ShareMediaDialog({
               onSelect={handleSelectSuggestion}
             />
           </div>
+
+          {!item.is_encrypted && (
+            <div className="mt-4 mb-4 rounded-lg border bg-green-500/10 p-3">
+              <div className="flex items-start gap-2">
+                <Globe className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+
+                <div className="flex-1 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                      Public Media
+                    </p>
+
+                    <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1">
+                      This media is not encrypted. Anyone with the link can view
+                      this content.
+                    </p>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="shrink-0"
+                    onClick={handleCopyPublicLink}
+                  >
+                    Generate Public Link
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Shared Users List */}
           <div className="space-y-2">
