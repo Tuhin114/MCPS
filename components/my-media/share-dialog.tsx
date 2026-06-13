@@ -19,6 +19,7 @@ import {
   useUpdateSharePermission,
   useRemoveShare,
 } from "@/hooks/useMediaAction";
+import { useSendNotification } from "@/hooks/useNotification";
 import { SuggestionsDropdown } from "./SuggestionsDropdown";
 import { UserRow } from "./UserRow";
 import { LocalSharedUsers, MyMediaItem, Permission } from "@/types/media";
@@ -48,6 +49,7 @@ export function ShareMediaDialog({
     isPending: isUpdatingPermission,
   } = useUpdateSharePermission();
   const { mutateAsync: removeShare, isPending: isRemoving } = useRemoveShare();
+  const { mutateAsync: sendNotification } = useSendNotification();
 
   const isSaving = isSharing || isUpdatingPermission || isRemoving;
 
@@ -56,7 +58,7 @@ export function ShareMediaDialog({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isAddingByEmail, setIsAddingByEmail] = useState(false);
 
-  // Seed from item.shared-with — carry shareId for existing rows so we can PATCH/DELETE them
+  // Seed from item.shared_with — carry shareId for existing rows so we can PATCH/DELETE them
   const [sharedUsers, setSharedUsers] = useState<LocalSharedUsers[]>(
     (item.shared_with ?? []).map((u) => ({
       share_id: u.share_id,
@@ -70,6 +72,13 @@ export function ShareMediaDialog({
       permissionChanged: false,
       markedForRemoval: false,
     })),
+  );
+
+  // Track previous permissions so we can determine Upgraded vs Restricted
+  const [originalPermissions] = useState<Record<string, Permission>>(
+    Object.fromEntries(
+      (item.shared_with ?? []).map((u) => [u.shared_with.id, u.permission]),
+    ),
   );
 
   const visibleUsers = useMemo(
@@ -137,7 +146,6 @@ export function ShareMediaDialog({
   const addByEmail = async () => {
     if (!canAddNew) return;
 
-    // 1. Already in local suggestions list — add directly
     const existing = MySharedWithUsers?.find(
       (u) => u.email.toLowerCase() === searchQuery.toLowerCase(),
     );
@@ -152,7 +160,6 @@ export function ShareMediaDialog({
       return;
     }
 
-    // 2. Unknown email — hit the backend to validate + fetch profile
     setIsAddingByEmail(true);
     try {
       const result = await getUser(searchQuery);
@@ -180,7 +187,6 @@ export function ShareMediaDialog({
           ? {
               ...u,
               permission,
-              // Only flag permissionChanged for rows that already exist in DB
               permissionChanged: !u.isNew,
             }
           : u,
@@ -188,8 +194,6 @@ export function ShareMediaDialog({
     );
   };
 
-  // New rows (isNew=true, no share_id) → splice out entirely, nothing to DELETE in DB.
-  // Existing rows (isNew=false, has share_id) → flag markedForRemoval so handleSave can DELETE.
   const removeUser = (userId: string) => {
     setSharedUsers((prev) =>
       prev
@@ -202,14 +206,14 @@ export function ShareMediaDialog({
     );
   };
 
-  // Fans out only the mutations that are actually needed.
-  // Multiple new users and multiple removals are all fired in parallel via Promise.all.
+  // ── handleSave — fans out DB mutations + fires notifications in parallel ─────
   const handleSave = async () => {
     const ops: Promise<unknown>[] = [];
+    const notificationOps: Promise<unknown>[] = [];
 
     for (const u of sharedUsers) {
       if (u.isNew && !u.markedForRemoval) {
-        // New user → POST shared_media row
+        // New share → POST shared_media + notify "Shared"
         ops.push(
           shareMedia({
             mediaId: item.id,
@@ -219,16 +223,32 @@ export function ShareMediaDialog({
             },
           }),
         );
+        notificationOps.push(
+          sendNotification({
+            media_id: item.id,
+            receiver_id: u.shared_user_id,
+            action: "Shared",
+          }).catch(() => {
+            /* non-critical — don't block save */
+          }),
+        );
       } else if (!u.isNew && u.markedForRemoval && u.share_id) {
-        // Removed existing user → DELETE shared_media row using share_id
+        // Removed → DELETE shared_media + notify "Revoked"
         ops.push(
           removeShare({
             mediaId: item.id,
             shareId: u.share_id,
           }),
         );
+        notificationOps.push(
+          sendNotification({
+            media_id: item.id,
+            receiver_id: u.shared_user_id,
+            action: "Revoked",
+          }).catch(() => {}),
+        );
       } else if (!u.isNew && u.permissionChanged && u.share_id) {
-        // Permission changed on existing row → PATCH using share_id
+        // Permission changed → PATCH shared_media + notify Upgraded/Restricted
         ops.push(
           updateSharePermission({
             mediaId: item.id,
@@ -236,10 +256,26 @@ export function ShareMediaDialog({
             payload: { permission: u.permission },
           }),
         );
+
+        const prev = originalPermissions[u.shared_user_id];
+        const action =
+          prev === "view" && u.permission === "download"
+            ? "Upgraded"
+            : "Restricted";
+
+        notificationOps.push(
+          sendNotification({
+            media_id: item.id,
+            receiver_id: u.shared_user_id,
+            action,
+          }).catch(() => {}),
+        );
       }
     }
 
     await Promise.all(ops);
+    // Fire notifications after DB ops succeed (non-blocking for UX)
+    Promise.all(notificationOps);
 
     setSharedUsers((prev) =>
       prev.map((u) => ({
@@ -249,9 +285,7 @@ export function ShareMediaDialog({
       })),
     );
 
-    await queryClient.invalidateQueries({
-      queryKey: ["media"],
-    });
+    await queryClient.invalidateQueries({ queryKey: ["media"] });
 
     onShare?.(
       item,
@@ -263,9 +297,7 @@ export function ShareMediaDialog({
 
   const handleCopyPublicLink = async () => {
     const link = `${window.location.origin}/public/${item.id}/view-content`;
-
     await navigator.clipboard.writeText(link);
-
     toast.success("Public link copied to clipboard");
   };
 
@@ -274,8 +306,6 @@ export function ShareMediaDialog({
     setOpen(val);
     if (!val) onDialogClose?.();
   };
-
-  const isAddButtonBusy = isAddingByEmail;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -333,11 +363,11 @@ export function ShareMediaDialog({
               </div>
               <Button
                 onClick={addByEmail}
-                disabled={!canAddNew || isAddButtonBusy || isSaving}
+                disabled={!canAddNew || isAddingByEmail || isSaving}
                 size="sm"
                 className="h-9 gap-1.5 bg-amber-500 hover:bg-amber-600 text-white flex-shrink-0 disabled:opacity-40"
               >
-                {isAddButtonBusy ? (
+                {isAddingByEmail ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <UserPlus className="h-3.5 w-3.5" />
@@ -361,19 +391,16 @@ export function ShareMediaDialog({
             <div className="mt-4 mb-4 rounded-lg border bg-green-500/10 p-3">
               <div className="flex items-start gap-2">
                 <Globe className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-
                 <div className="flex-1 flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-green-600 dark:text-green-400">
                       Public Media
                     </p>
-
                     <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1">
                       This media is not encrypted. Anyone with the link can view
                       this content.
                     </p>
                   </div>
-
                   <Button
                     size="sm"
                     variant="default"

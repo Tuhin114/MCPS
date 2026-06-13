@@ -1,12 +1,10 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { getNavMeta } from "@/lib/nav";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationPanel } from "@/components/NotificationPanel";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -34,24 +33,8 @@ export function TopNav() {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="relative hidden md:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder="Search media, shares, activity..."
-            className="h-9 w-56 rounded-lg border border-border bg-surface-secondary pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/50 focus:bg-surface-hover lg:w-72"
-          />
-        </div>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative size-9 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
-        >
-          <Bell className="size-4.5" />
-          <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {/* Notification bell with unread badge + popover panel */}
+        <NotificationPanel />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
