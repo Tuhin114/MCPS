@@ -43,7 +43,7 @@ export const mainNav: NavItem[] = [
   },
   {
     title: "Activity Log",
-    href: "/protected/activity",
+    href: "/protected/activity-log",
     icon: ScrollText,
     subtitle: "Full audit trail of events",
   },
