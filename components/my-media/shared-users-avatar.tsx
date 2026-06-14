@@ -3,6 +3,7 @@ import {
   AvatarFallback,
   AvatarGroup,
   AvatarGroupCount,
+  AvatarImage,
 } from "@/components/ui/avatar";
 
 import {
@@ -23,6 +24,7 @@ export function SharedUsersAvatar({ users, max = 3 }: SharedUsersAvatarProps) {
   const hiddenUsers = users.slice(max);
   const hiddenCount = hiddenUsers.length;
 
+  console.log("displayedUsers", displayedUsers);
   return (
     <TooltipProvider>
       <AvatarGroup>
@@ -30,6 +32,10 @@ export function SharedUsersAvatar({ users, max = 3 }: SharedUsersAvatarProps) {
           <Tooltip key={user.shared_with.id}>
             <TooltipTrigger asChild>
               <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={user.shared_with.avatar_url}
+                  alt={user.shared_with.username}
+                />
                 <AvatarFallback className="bg-amber-500/20 text-amber-700 text-xs font-semibold">
                   {user.shared_with.avatar_url ||
                     user.shared_with.username

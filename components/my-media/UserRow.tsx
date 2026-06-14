@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,6 +27,10 @@ export function UserRow({
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border bg-surface hover:bg-muted/30 transition-colors group">
       <Avatar className="h-9 w-9 flex-shrink-0">
+        <AvatarImage
+          src={entry.shared_user_avatar_url}
+          alt={entry.shared_user_name}
+        />
         <AvatarFallback
           className={`text-xs font-semibold text-white ${avatarColor(entry.shared_user_id)}`}
         >

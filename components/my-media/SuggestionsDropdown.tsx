@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { avatarColor, getInitials } from "@/lib/helper";
 
 export function SuggestionsDropdown({
@@ -39,6 +40,7 @@ export function SuggestionsDropdown({
             className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted/40 transition-colors border-b border-border last:border-b-0 text-left"
           >
             <Avatar className="h-7 w-7 flex-shrink-0">
+              <AvatarImage src={user.avatar_url} alt={user.username} />
               <AvatarFallback
                 className={`text-[10px] font-semibold text-white ${avatarColor(user.id)}`}
               >

@@ -52,7 +52,7 @@ export const mainNav: NavItem[] = [
 export const accountNav: NavItem[] = [
   {
     title: "Profile",
-    href: "/profile",
+    href: "/protected/profiles",
     icon: User,
     subtitle: "Manage your account details",
   },
