@@ -1,5 +1,14 @@
 import sharp from "sharp";
 
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 export async function applyImageWatermark(
   buffer: Buffer,
   watermarkText: string,
@@ -13,6 +22,8 @@ export async function applyImageWatermark(
 
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
+  const safeText = escapeXml(watermarkText);
+
   let texts = "";
 
   for (let y = -200; y < height + 200; y += 220) {
@@ -23,18 +34,25 @@ export async function applyImageWatermark(
           y="${y}"
           fill="rgba(255,255,255,0.15)"
           font-size="${fontSize}"
-          font-family="Arial"
-          font-weight="bold"
+          font-family="sans-serif"
+          font-weight="700"
+          text-anchor="middle"
+          dominant-baseline="middle"
           transform="rotate(-30 ${x} ${y})"
         >
-          ${watermarkText}
+          ${safeText}
         </text>
       `;
     }
   }
 
   const svg = `
-    <svg width="${width}" height="${height}">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="${width}"
+      height="${height}"
+      viewBox="0 0 ${width} ${height}"
+    >
       ${texts}
     </svg>
   `;
@@ -47,5 +65,6 @@ export async function applyImageWatermark(
         left: 0,
       },
     ])
+    .png()
     .toBuffer();
 }
