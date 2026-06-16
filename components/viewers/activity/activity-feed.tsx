@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { activityFeed, categoryStyles } from "@/lib/activity-data";
@@ -19,7 +25,9 @@ export function ActivityFeed() {
     <Card>
       <CardHeader>
         <CardTitle>Activity Feed</CardTitle>
-        <CardDescription>Real-time protection, sharing and security events</CardDescription>
+        <CardDescription>
+          Real-time protection, sharing and security events
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="max-h-[560px] space-y-1 overflow-y-auto pr-1 [scrollbar-width:thin]">
@@ -30,17 +38,27 @@ export function ActivityFeed() {
                 key={event.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  duration: 0.35,
+                  delay: i * 0.04,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 className="group relative flex gap-3 rounded-xl p-3 transition-colors hover:bg-zinc-800/40"
               >
-                <span className={`absolute left-0 top-3 bottom-3 w-[2px] rounded-full ${railColor[event.category]}`} />
+                <span
+                  className={`absolute left-0 top-3 bottom-3 w-[2px] rounded-full ${railColor[event.category]}`}
+                />
                 <Avatar className="ml-2">{event.user.initials}</Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-zinc-200">{event.title}</p>
-                    <Badge tone={cat.tone}>{cat.label}</Badge>
+                    <p className="text-sm font-medium text-zinc-200">
+                      {event.title}
+                    </p>
+                    <Badge variant="secondary">{cat.label}</Badge>
                   </div>
-                  <p className="mt-0.5 truncate text-xs text-zinc-500">{event.description}</p>
+                  <p className="mt-0.5 truncate text-xs text-zinc-500">
+                    {event.description}
+                  </p>
                 </div>
                 <span className="shrink-0 whitespace-nowrap pt-0.5 text-xs text-zinc-500">
                   {event.timestamp}

@@ -4,7 +4,7 @@ import type { UpdateMediaPayload } from "@/types/media";
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;
@@ -64,7 +64,7 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const supabase = await createClient();
   const { id } = await params;

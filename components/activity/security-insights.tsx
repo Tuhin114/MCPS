@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { securityInsights } from "@/lib/activity-data";
@@ -11,7 +17,9 @@ export function SecurityInsights() {
     <Card>
       <CardHeader>
         <CardTitle>Security Insights</CardTitle>
-        <CardDescription>Protection coverage across your file library</CardDescription>
+        <CardDescription>
+          Protection coverage across your file library
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {securityInsights.map((item, i) => {
@@ -26,11 +34,13 @@ export function SecurityInsights() {
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-zinc-300">{item.label}</span>
-                  <Badge tone={item.tone}>{item.status}</Badge>
+                  <Badge variant="secondary">{item.status}</Badge>
                 </div>
                 <span className="text-sm font-medium tabular-nums text-zinc-200">
                   {item.value.toLocaleString()}
-                  <span className="ml-1 text-zinc-500">/ {item.total.toLocaleString()}</span>
+                  <span className="ml-1 text-zinc-500">
+                    / {item.total.toLocaleString()}
+                  </span>
                 </span>
               </div>
               <Progress value={pct} />
