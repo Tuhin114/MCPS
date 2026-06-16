@@ -50,6 +50,7 @@ const ThemeSwitcher = () => {
               className={"text-muted-foreground"}
             />
           )}
+          Change Appearance
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-content" align="start">

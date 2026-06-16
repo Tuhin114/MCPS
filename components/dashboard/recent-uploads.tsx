@@ -27,7 +27,7 @@ const typeMeta: Record<
 
 export function RecentUploads({ data }: { data: RecentUpload[] | undefined }) {
   return (
-    <section className="rounded-xl border border-border bg-card">
+    <section className="flex h-full flex-col rounded-xl border border-border bg-card">
       <header className="flex items-center justify-between px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold tracking-tight">

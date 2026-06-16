@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { Lock, Shield, Globe } from "lucide-react";
+import { Lock, ShieldCheck, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {
   is_encrypted: boolean;
@@ -12,35 +12,41 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   if (is_watermarked) {
     return (
-      <Badge
-        variant="outline"
-        className="gap-1.5 bg-blue-500/30  text-white border-400 border-blue-500/20"
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-medium",
+          "border-primary/25 bg-primary/10 text-primary",
+        )}
       >
-        <Shield className="h-3 w-3" />
+        <ShieldCheck className="h-3 w-3" />
         Protected
-      </Badge>
+      </span>
     );
   }
 
   if (is_encrypted) {
     return (
-      <Badge
-        variant="outline"
-        className="gap-1.5 bg-amber-500/5 text-amber-400 border-amber-500/20"
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-medium",
+          "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
+        )}
       >
         <Lock className="h-3 w-3" />
         Encrypted
-      </Badge>
+      </span>
     );
   }
 
   return (
-    <Badge
-      variant="outline"
-      className="gap-1.5 bg-green-500/5 text-green-400 border-green-500/20muted-foreground"
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] font-medium",
+        "border-border bg-muted/50 text-muted-foreground",
+      )}
     >
       <Globe className="h-3 w-3" />
       Public
-    </Badge>
+    </span>
   );
 }

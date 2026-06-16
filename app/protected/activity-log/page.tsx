@@ -11,7 +11,7 @@ import { AdvancedInsights } from "@/components/activity/advanced-insights";
 
 export default function ActivityAnalyticsPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.06),_transparent_45%)]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
         <ActivityOverview />
 

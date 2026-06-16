@@ -1,11 +1,12 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { toast } from "sonner";
+import { ShieldCheck, Droplets, Type } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProtectionOptionsProps {
   settings: ProtectionSettings;
@@ -18,6 +19,63 @@ export interface ProtectionSettings {
   watermarkText: string;
 }
 
+interface OptionRowProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
+function OptionRow({
+  icon,
+  title,
+  description,
+  checked,
+  disabled,
+  onCheckedChange,
+}: OptionRowProps) {
+  return (
+    <div
+      className={cn(
+        "flex items-start justify-between gap-4 rounded-xl border p-4 transition-colors duration-150",
+        checked && !disabled
+          ? "border-primary/25 bg-primary/5"
+          : "border-border bg-card",
+        disabled && "opacity-50",
+      )}
+    >
+      <div className="flex gap-3">
+        <div
+          className={cn(
+            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
+            checked && !disabled
+              ? "border-primary/20 bg-primary/10 text-primary"
+              : "border-border bg-muted/50 text-muted-foreground",
+          )}
+        >
+          {icon}
+        </div>
+        <div>
+          <Label className="text-[13.5px] font-medium text-foreground cursor-pointer">
+            {title}
+          </Label>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </div>
+      <Switch
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={onCheckedChange}
+        className="mt-0.5 shrink-0"
+      />
+    </div>
+  );
+}
+
 export default function ProtectionOptions({
   settings,
   onOptionsChange,
@@ -28,132 +86,115 @@ export default function ProtectionOptions({
         "Switching off encryption will make the media publicly accessible to anyone with a shareable link.",
       );
     }
-
     onOptionsChange({
       ...settings,
       encryptFile: checked,
       addWatermark: checked,
     });
   };
+
   const handleWatermarkChange = (checked: boolean) => {
     if (!settings.encryptFile) return;
-
-    onOptionsChange({
-      ...settings,
-      addWatermark: checked,
-    });
+    onOptionsChange({ ...settings, addWatermark: checked });
   };
 
   const handleTextChange = (text: string) => {
-    onOptionsChange({
-      ...settings,
-      watermarkText: text,
-    });
+    onOptionsChange({ ...settings, watermarkText: text });
   };
+
   return (
-    <Card className="border-border bg-card p-5">
-      <h2 className="mb-5 text-lg font-semibold text-foreground">
-        Protection Options
-      </h2>
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
+        <ShieldCheck className="h-4 w-4 text-primary" />
+        <h2 className="text-[13.5px] font-semibold text-foreground">
+          Protection settings
+        </h2>
+      </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Encrypt */}
-        <div className="rounded-xl border border-primary/20 bg-surface p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <Label className="text-base font-medium text-foreground">
-                Encrypt File
-              </Label>
-
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Encrypt your file with AES-256 before storing.
-              </p>
-            </div>
-
-            <Switch
-              checked={settings.encryptFile}
-              onCheckedChange={handleEncryptChange}
-            />
-          </div>
+      <div className="p-5 space-y-3">
+        {/* Toggles row */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <OptionRow
+            icon={<ShieldCheck className="h-4 w-4" />}
+            title="AES-256 encryption"
+            description="Encrypt your file before storing. Required for watermarking."
+            checked={settings.encryptFile}
+            onCheckedChange={handleEncryptChange}
+          />
+          <OptionRow
+            icon={<Droplets className="h-4 w-4" />}
+            title="Watermark"
+            description="Embed a repeating text mark on images and videos."
+            checked={settings.addWatermark}
+            disabled={!settings.encryptFile}
+            onCheckedChange={handleWatermarkChange}
+          />
         </div>
 
-        {/* Watermark */}
-        <div className="rounded-xl border border-primary/20 bg-surface p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <Label className="text-base font-medium text-foreground">
-                Add Watermark
-              </Label>
-
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Add text watermark to images and videos.
-              </p>
-            </div>
-
-            <Switch
-              checked={settings.addWatermark}
-              disabled={!settings.encryptFile}
-              onCheckedChange={handleWatermarkChange}
-            />
+        {/* Watermark text + preview */}
+        <div
+          className={cn(
+            "rounded-xl border p-4 transition-colors duration-150",
+            settings.addWatermark
+              ? "border-primary/25 bg-primary/5"
+              : "border-border bg-card opacity-60",
+          )}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Type className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-[12.5px] font-medium text-foreground">
+              Watermark text
+            </span>
           </div>
-        </div>
-
-        {/* Watermark Text + Preview */}
-        <div className="rounded-xl border border-primary/20 bg-surface p-5">
-          <h3 className="mb-4 text-base font-medium text-foreground">
-            Watermark Text
-          </h3>
 
           <div className="flex gap-4">
-            {/* Input */}
-            <div className="flex-1">
+            <div className="flex-1 space-y-2">
               <Input
                 value={settings.watermarkText}
                 onChange={(e) => handleTextChange(e.target.value)}
                 disabled={!settings.encryptFile || !settings.addWatermark}
-                className="
-                border-primary/20
-                bg-background
-                text-foreground
-                placeholder:text-muted-foreground
-                focus-visible:ring-primary
-              "
+                placeholder="© Your Name"
+                className="h-9 border-border bg-background text-[13px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-primary/30 disabled:opacity-40"
               />
-
-              <p className="mt-4 text-sm text-muted-foreground">Preview</p>
+              <p className="text-[11.5px] text-muted-foreground">
+                This text will repeat diagonally across protected media.
+              </p>
             </div>
 
-            {/* Preview Thumbnail */}
-            <div className="relative h-28 w-44 overflow-hidden rounded-lg border border-primary/20">
+            {/* Preview */}
+            <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded-lg border border-border">
               <Image
                 width={400}
                 height={300}
                 src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
-                alt="Preview"
+                alt="Watermark preview"
                 className="h-full w-full object-cover"
               />
-
               {settings.addWatermark && (
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                   {Array.from({ length: 20 }).map((_, i) => (
                     <span
                       key={i}
-                      className="absolute text-white/15 text-[10px] font-bold"
+                      className="absolute text-white/20 text-[9px] font-semibold whitespace-nowrap"
                       style={{
-                        left: `${(i % 4) * 25}%`,
-                        top: `${Math.floor(i / 4) * 20}%`,
+                        left: `${(i % 4) * 28 - 10}%`,
+                        top: `${Math.floor(i / 4) * 22 - 5}%`,
                         transform: "rotate(-30deg)",
                       }}
                     >
-                      {settings.watermarkText}
+                      {settings.watermarkText || "© Watermark"}
                     </span>
                   ))}
                 </div>
               )}
+              <div className="absolute bottom-1.5 right-1.5 rounded px-1.5 py-0.5 bg-black/50 text-[9px] text-white/70 backdrop-blur-sm">
+                preview
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

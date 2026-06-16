@@ -5,7 +5,6 @@ import {
   Users,
   ScrollText,
   User,
-  Settings,
   type LucideIcon,
 } from "lucide-react";
 
@@ -55,12 +54,6 @@ export const accountNav: NavItem[] = [
     href: "/protected/profiles",
     icon: User,
     subtitle: "Manage your account details",
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-    subtitle: "Configure platform preferences",
   },
 ];
 

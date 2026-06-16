@@ -18,6 +18,65 @@ export interface SharedUser {
   isNew?: boolean;
 }
 
+export const mockActivities = [
+  {
+    id: "1",
+    title: "Media Protected",
+    description: "AES-256 encryption applied to product-launch-keynote.mp4",
+    type: "protected" as const,
+    createdAt: "2m ago",
+  },
+  {
+    id: "2",
+    title: "New Share Created",
+    description: "campaign-hero-banner.png shared with marketing team",
+    type: "shared" as const,
+    createdAt: "8m ago",
+  },
+  {
+    id: "3",
+    title: "Encryption Verified",
+    description: "Integrity check passed for confidential-report.pdf",
+    type: "encrypted" as const,
+    createdAt: "15m ago",
+  },
+  {
+    id: "4",
+    title: "Secure Download",
+    description: "design-assets.zip downloaded by authorized user",
+    type: "download" as const,
+    createdAt: "22m ago",
+  },
+  {
+    id: "5",
+    title: "Access Revoked",
+    description: "External sharing link disabled for investor-deck.pdf",
+    type: "warning" as const,
+    createdAt: "35m ago",
+  },
+  {
+    id: "6",
+    title: "Protected Upload",
+    description: "brand-guidelines.pdf uploaded and encrypted",
+    type: "protected" as const,
+    createdAt: "1h ago",
+  },
+  {
+    id: "7",
+    title: "Share Accepted",
+    description: "Shared media accessed by project collaborator",
+    type: "shared" as const,
+    createdAt: "2h ago",
+  },
+  {
+    id: "8",
+    title: "Storage Audit",
+    description: "Protected storage integrity verified successfully",
+    type: "encrypted" as const,
+    createdAt: "3h ago",
+  },
+];
+
 export const stats = [
   {
     key: "total-media",

@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { mainNav, accountNav, type NavItem } from "@/lib/nav";
+import { ThemeSwitcher } from "../theme-switcher";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -35,13 +36,23 @@ export function AppSidebar() {
           asChild
           isActive={isActive}
           tooltip={item.title}
-          className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium data-[active=true]:shadow-[inset_0_0_0_1px_var(--color-primary)] data-[active=true]:shadow-primary/20"
+          className={[
+            "h-9 gap-3 rounded-lg px-3 text-[13.5px] font-medium transition-all duration-150",
+            "text-sidebar-foreground/60",
+            // hover — warm tinted surface, text steps up
+            "hover:bg-primary/8 hover:text-sidebar-foreground",
+            // active — amber fill, strong text, left-edge accent via box-shadow
+            "data-[active=true]:bg-primary/12",
+            "data-[active=true]:text-primary",
+            "data-[active=true]:font-semibold",
+            "data-[active=true]:shadow-[inset_2px_0_0_0_var(--color-primary)]",
+          ].join(" ")}
         >
           <Link
             href={item.href}
             onClick={() => isMobile && setOpenMobile(false)}
           >
-            <item.icon className="size-4" />
+            <item.icon className="size-[17px] shrink-0" />
             <span>{item.title}</span>
           </Link>
         </SidebarMenuButton>
@@ -51,46 +62,64 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <Link href="/" className="flex items-center gap-2.5 px-1.5 py-2">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/30">
-            <ShieldCheck className="size-4.5 text-primary" />
+      {/* ── Logo ── */}
+      <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
+            <ShieldCheck className="size-5 text-primary" />
           </div>
-          <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">
+          <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
+            <span className="text-[14px] font-semibold tracking-tight text-sidebar-foreground">
               MCPS
             </span>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[11px] font-medium text-muted-foreground/70 tracking-wide uppercase">
               Content Protection
             </span>
           </div>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      {/* ── Main nav + account nav pushed to bottom ── */}
+      <SidebarContent className="flex flex-col gap-0 overflow-hidden">
+        {/* Platform nav fills the top */}
+        <SidebarGroup className="flex-1 px-3 pt-5 pb-2">
+          <SidebarGroupLabel className="mb-2 px-3 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+            Platform
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{mainNav.map(renderItem)}</SidebarMenu>
+            <SidebarMenu className="gap-0.5">
+              {mainNav.map(renderItem)}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+        {/* Account nav pinned to bottom of scroll area */}
+        <SidebarGroup className="mt-auto px-3 pb-3">
+          <SidebarGroupLabel className="mb-2 px-3 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+            Account
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{accountNav.map(renderItem)}</SidebarMenu>
+            <SidebarMenu className="gap-0.5">
+              {accountNav.map(renderItem)}
+            </SidebarMenu>
+            <ThemeSwitcher />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex items-center gap-2 rounded-lg px-1.5 py-1.5 group-data-[collapsible=icon]:justify-center">
-          <div className="size-2 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]" />
-          <span className="text-[11px] text-muted-foreground group-data-[collapsible=icon]:hidden">
+      {/* ── Status footer ── */}
+      <SidebarFooter className="border-t border-sidebar-border px-4 py-3.5">
+        <div className="flex items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
+          <span className="relative flex size-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-40" />
+            <span className="relative inline-flex size-2 rounded-full bg-primary" />
+          </span>
+          <span className="text-[11.5px] font-medium text-muted-foreground group-data-[collapsible=icon]:hidden">
             All systems secure
           </span>
         </div>
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

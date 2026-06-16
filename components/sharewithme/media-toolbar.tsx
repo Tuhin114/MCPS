@@ -9,14 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
-import type { FileType } from "@/lib/mcps-data";
+import { Search, Loader2, SlidersHorizontal } from "lucide-react";
+import { FileType } from "@/types/media";
 
 interface MediaToolbarProps {
   onSearch: (query: string) => void;
   onFileTypeFilter: (fileType: FileType | "all") => void;
   searchQuery: string;
   selectedFileType: FileType | "all";
+  totalResults?: number;
 }
 
 export function MediaToolbar({
@@ -24,6 +25,7 @@ export function MediaToolbar({
   onFileTypeFilter,
   searchQuery,
   selectedFileType,
+  totalResults,
 }: MediaToolbarProps) {
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isSearching, setIsSearching] = useState(false);
@@ -33,7 +35,6 @@ export function MediaToolbar({
       onSearch(localQuery);
       setIsSearching(false);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [localQuery]);
 
@@ -42,48 +43,77 @@ export function MediaToolbar({
     setIsSearching(true);
   };
 
+  const hasActiveFilter = selectedFileType !== "all" || localQuery !== "";
+  const isTypeFiltered = selectedFileType !== "all";
+
   return (
-    <div className="flex gap-3">
-      {/* Search Bar */}
-      <div className="relative flex-1 bg-surface border-border rounded-md overflow-hidden">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <div className="flex items-center gap-2">
+      {/* Search — distinct input background */}
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
         <Input
-          placeholder="Search media..."
+          placeholder="Search by name…"
           value={localQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-10 bg-surface border-border"
+          className="h-9 pl-9 pr-9 text-[13px] bg-card border-border placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/40 transition-colors"
         />
         {isSearching && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary/60" />
           </div>
         )}
       </div>
 
-      {/* Filters and Actions */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 flex-1">
-          <Select
-            value={selectedFileType}
-            onValueChange={(value) =>
-              onFileTypeFilter(value as FileType | "all")
-            }
+      {/* Divider */}
+      <div className="h-5 w-px bg-border shrink-0" />
+
+      {/* Type filter — clearly different surface */}
+      <div className="flex items-center gap-1.5">
+        <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+        <Select
+          value={selectedFileType}
+          onValueChange={(value) => onFileTypeFilter(value as FileType | "all")}
+        >
+          <SelectTrigger
+            className={[
+              "h-9 w-[130px] text-[12.5px] transition-colors",
+              isTypeFiltered
+                ? "border-primary/30 bg-primary/8 text-primary font-medium"
+                : "border-border bg-card text-muted-foreground hover:text-foreground",
+            ].join(" ")}
           >
-            <SelectTrigger className="w-full sm:w-[150px] bg-surface border-border">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
-              <SelectItem value="video">Video</SelectItem>
-              <SelectItem value="audio">Audio</SelectItem>
-              <SelectItem value="document">Document</SelectItem>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="presentation">Presentation</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-popover text-popover-foreground shadow-xl">
+            {[
+              "all",
+              "image",
+              "video",
+              "audio",
+              "document",
+              "pdf",
+              "presentation",
+            ].map((val) => (
+              <SelectItem
+                key={val}
+                value={val}
+                className="text-[12.5px] focus:bg-accent focus:text-accent-foreground"
+              >
+                {val === "all"
+                  ? "All types"
+                  : val.charAt(0).toUpperCase() + val.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Live result count — only while filtering */}
+      {hasActiveFilter && totalResults !== undefined && (
+        <span className="shrink-0 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground tabular-nums">
+          {totalResults} result{totalResults !== 1 ? "s" : ""}
+        </span>
+      )}
     </div>
   );
 }

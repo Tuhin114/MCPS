@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
-import { Cloud } from "lucide-react";
+import { useRef, useState } from "react";
+import { CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface UploadAreaProps {
   onFilesSelected: (files: File[]) => void;
@@ -14,77 +15,49 @@ export default function UploadArea({
   fileCount,
 }: UploadAreaProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleClick = () => fileInputRef.current?.click();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const remaining = 5 - fileCount;
     const filesToAdd = files.slice(0, remaining);
-
     if (files.length > remaining) {
       alert(`Maximum 5 files allowed. You can add ${remaining} more file(s).`);
     }
-
     onFilesSelected(filesToAdd);
+    e.target.value = "";
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragging(false);
     handleFileChange({
       target: { files: e.dataTransfer.files },
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+  const isFull = fileCount >= 5;
 
   return (
     <div
       onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onClick={handleClick}
-      className="
-      group
-      relative
-      cursor-pointer
-      overflow-hidden
-      rounded-2xl
-      border-2
-      border-dashed
-      border-primary/20
-      bg-card
-      px-8
-      py-14
-      transition-all
-      duration-300
-      hover:border-primary/40
-      hover:bg-surface-hover
-      hover:shadow-lg
-      hover:shadow-primary/5
-    "
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragging(true);
+      }}
+      onDragLeave={() => setIsDragging(false)}
+      onClick={!isFull ? handleClick : undefined}
+      className={cn(
+        "relative cursor-pointer rounded-2xl border-2 border-dashed px-8 py-12 transition-all duration-200",
+        isDragging
+          ? "border-primary/60 bg-primary/5"
+          : "border-border hover:border-primary/40 hover:bg-accent/40",
+        isFull && "cursor-default opacity-60 pointer-events-none",
+      )}
     >
-      {/* Glow */}
-      <div
-        className="
-        absolute
-        inset-0
-        bg-gradient-to-br
-        from-primary/[0.03]
-        via-transparent
-        to-transparent
-        opacity-0
-        transition-opacity
-        duration-300
-        group-hover:opacity-100
-      "
-      />
-
       <input
         title="Select files to upload"
         ref={fileInputRef}
@@ -95,69 +68,55 @@ export default function UploadArea({
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.pptx,.txt"
       />
 
-      <div className="relative flex flex-col items-center text-center">
+      <div className="flex flex-col items-center gap-5 text-center">
         <div
-          className="
-          mb-6
-          flex
-          h-20
-          w-20
-          items-center
-          justify-center
-          rounded-2xl
-          border
-          border-primary/20
-          bg-primary/10
-        "
+          className={cn(
+            "flex h-16 w-16 items-center justify-center rounded-2xl border transition-colors duration-200",
+            isDragging
+              ? "border-primary/40 bg-primary/10"
+              : "border-border bg-card",
+          )}
         >
-          <Cloud className="h-10 w-10 text-primary" />
+          <CloudUpload
+            className={cn(
+              "h-8 w-8 transition-colors",
+              isDragging ? "text-primary" : "text-muted-foreground",
+            )}
+          />
         </div>
 
-        <h3 className="text-xl font-semibold text-foreground">
-          Drag & Drop files here
-        </h3>
-
-        <p className="mt-2 text-sm text-muted-foreground">
-          or choose files from your device
-        </p>
-
-        <Button
-          size="lg"
-          className="
-          mt-6
-          bg-primary
-          text-primary-foreground
-          hover:bg-primary/90
-        "
-        >
-          Choose Files
-        </Button>
-
-        <div className="mt-6 space-y-1">
+        <div className="space-y-1.5">
+          <h3 className="text-[15px] font-semibold text-foreground">
+            {isDragging ? "Release to add files" : "Drop files here or browse"}
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Images, Videos, Audio, PDF, DOCX
-          </p>
-
-          <p className="text-xs text-muted-foreground">
-            Maximum 5 files • Up to 5 MB each
+            Images, Videos, Audio, PDF, DOCX · up to 5 MB each
           </p>
         </div>
 
-        <div
-          className="
-          mt-6
-          rounded-full
-          border
-          border-primary/20
-          bg-primary/10
-          px-4
-          py-1.5
-          text-sm
-          font-medium
-          text-primary
-        "
-        >
-          {fileCount}/5 Files Selected
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 rounded-lg border-border bg-card px-4 text-[13px] font-medium hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClick();
+            }}
+          >
+            Choose files
+          </Button>
+
+          <span
+            className={cn(
+              "rounded-full border px-3 py-1 text-[12px] font-medium tabular-nums",
+              fileCount > 0
+                ? "border-primary/20 bg-primary/8 text-primary"
+                : "border-border bg-muted/50 text-muted-foreground",
+            )}
+          >
+            {fileCount} / 5 selected
+          </span>
         </div>
       </div>
     </div>

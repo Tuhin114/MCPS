@@ -1,28 +1,24 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import type { FileType } from "@/lib/mcps-data";
 
 import { useSharedWithMeMedia } from "@/hooks/useSharedWithMe";
 import { MediaToolbar } from "./media-toolbar";
 import { MediaTable } from "./media-table";
 import { MediaPagination } from "../my-media/pagination";
+import { FileType } from "@/types/media";
 
 const ITEMS_PER_PAGE = 15;
 
 export default function ShareWithMe() {
   const { data: mediaList, isLoading, isError, error } = useSharedWithMeMedia();
 
-  const MediaList = useMemo(() => {
-    return mediaList ?? [];
-  }, [mediaList]);
+  const MediaList = useMemo(() => mediaList ?? [], [mediaList]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFileType, setSelectedFileType] = useState<FileType | "all">(
     "all",
   );
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const filteredItems = useMemo(() => {
@@ -30,10 +26,8 @@ export default function ShareWithMe() {
       const matchesSearch =
         searchQuery === "" ||
         item.file_name.toLowerCase().includes(searchQuery.toLowerCase());
-
       const matchesFileType =
         selectedFileType === "all" || item.file_type === selectedFileType;
-
       return matchesSearch && matchesFileType;
     });
   }, [MediaList, searchQuery, selectedFileType]);
@@ -44,14 +38,12 @@ export default function ShareWithMe() {
   );
 
   const paginatedItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredItems, currentPage]);
 
   useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
+    if (currentPage > totalPages && totalPages > 0) setCurrentPage(totalPages);
   }, [totalPages, currentPage]);
 
   const handleSearch = useCallback((query: string) => {
@@ -66,43 +58,44 @@ export default function ShareWithMe() {
 
   if (isError) {
     return (
-      <div className="container mx-auto">
-        <Card className="border-border bg-card">
-          <CardContent className="flex items-center justify-center min-h-[300px]">
-            <p className="text-destructive text-sm">
-              {error?.message ?? "Failed to load media"}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 p-8">
+        <p className="text-[13px] text-destructive">
+          {error?.message ?? "Failed to load shared files"}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto">
-      <Card className="border-border bg-card py-0">
-        <CardContent className="p-4 space-y-4">
-          <MediaToolbar
-            onSearch={handleSearch}
-            onFileTypeFilter={handleFileTypeFilter}
-            searchQuery={searchQuery}
-            selectedFileType={selectedFileType}
-          />
+    <div className="space-y-5 p-6">
+      {/* Toolbar */}
+      <MediaToolbar
+        onSearch={handleSearch}
+        onFileTypeFilter={handleFileTypeFilter}
+        searchQuery={searchQuery}
+        selectedFileType={selectedFileType}
+        totalResults={
+          searchQuery || selectedFileType !== "all"
+            ? filteredItems.length
+            : undefined
+        }
+      />
 
-          <MediaTable items={paginatedItems} isLoading={isLoading} />
-          {filteredItems.length > 0 && (
-            <div className="border-t border-border pt-4">
-              <MediaPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filteredItems.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Table */}
+      <MediaTable items={paginatedItems} isLoading={isLoading} />
+
+      {/* Pagination */}
+      {filteredItems.length > ITEMS_PER_PAGE && (
+        <div className="border-t border-border pt-4">
+          <MediaPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredItems.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 }

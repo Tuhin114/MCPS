@@ -25,56 +25,51 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
-//  Helpers
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(username: string | null, email: string): string {
   const name = username?.trim() || email.split("@")[0];
   const parts = name.split(/[\s_\-\.]+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
-//  Skeleton loader ─
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto w-full space-y-4 px-4 py-8 animate-pulse">
-      {/* Header skeleton */}
-      <div className="h-6 w-32 rounded bg-[#1a1a1a]" />
-      <div className="h-4 w-56 rounded bg-[#1a1a1a]" />
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-8 animate-pulse">
+      <div className="h-5 w-28 rounded-md bg-muted" />
+      <div className="h-3.5 w-52 rounded-md bg-muted/60" />
 
-      {/* Avatar card skeleton */}
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#141414] p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex items-center gap-5">
-          <div className="h-20 w-20 rounded-full bg-[#2a2a2a]" />
+          <div className="h-20 w-20 rounded-full bg-muted shrink-0" />
           <div className="space-y-2 flex-1">
-            <div className="h-4 w-28 rounded bg-[#2a2a2a]" />
-            <div className="h-3 w-44 rounded bg-[#2a2a2a]" />
-            <div className="h-7 w-28 rounded bg-[#2a2a2a] mt-3" />
+            <div className="h-4 w-28 rounded-md bg-muted" />
+            <div className="h-3 w-44 rounded-md bg-muted/60" />
+            <div className="mt-3 h-7 w-28 rounded-lg bg-muted" />
           </div>
         </div>
       </div>
 
-      {/* Details card skeleton */}
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#141414] p-6 space-y-5">
-        <div className="h-4 w-40 rounded bg-[#2a2a2a]" />
-        <div className="h-9 rounded-lg bg-[#2a2a2a]" />
-        <div className="h-px bg-[#2a2a2a]" />
-        <div className="h-4 w-40 rounded bg-[#2a2a2a]" />
-        <div className="h-9 rounded-lg bg-[#2a2a2a]" />
-        <div className="h-px bg-[#2a2a2a]" />
+      <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+        <div className="h-3.5 w-36 rounded-md bg-muted" />
+        <div className="h-9 rounded-lg bg-muted" />
+        <div className="h-px bg-border" />
+        <div className="h-3.5 w-36 rounded-md bg-muted" />
+        <div className="h-9 rounded-lg bg-muted" />
+        <div className="h-px bg-border" />
         <div className="grid grid-cols-2 gap-4">
-          <div className="h-10 rounded bg-[#2a2a2a]" />
-          <div className="h-10 rounded bg-[#2a2a2a]" />
+          <div className="h-10 rounded-md bg-muted" />
+          <div className="h-10 rounded-md bg-muted" />
         </div>
       </div>
     </div>
   );
 }
 
-//  Avatar Display ──
+// ── Avatar Display ────────────────────────────────────────────────────────────
 
 function AvatarDisplay({
   avatarUrl,
@@ -84,21 +79,20 @@ function AvatarDisplay({
   initials: string;
 }) {
   return (
-    <Avatar className="h-20 w-20 ring-2 ring-amber-500/40 ring-offset-2 ring-offset-[#141414]">
+    <Avatar className="h-20 w-20 ring-2 ring-primary/30 ring-offset-2 ring-offset-card">
       <AvatarImage
         src={avatarUrl ?? undefined}
         alt="Avatar"
         className="object-cover"
       />
-
-      <AvatarFallback className="bg-gradient-to-br from-amber-400 to-amber-600 text-xl font-bold text-black">
+      <AvatarFallback className="bg-primary/15 text-xl font-bold text-primary">
         {initials}
       </AvatarFallback>
     </Avatar>
   );
 }
 
-//  Section Card ─
+// ── Section Card ──────────────────────────────────────────────────────────────
 
 function SectionCard({
   title,
@@ -112,15 +106,14 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#2a2a2a] bg-[#141414] overflow-hidden">
-      {/* Card header — matches the app's card style */}
-      <div className="flex items-start gap-3 border-b border-[#2a2a2a] px-6 py-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex items-start gap-3 border-b border-border bg-muted/30 px-6 py-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
           <Icon className="h-4 w-4" />
         </div>
         <div>
-          <p className="text-sm font-medium text-white">{title}</p>
-          <p className="text-xs text-[#666]">{description}</p>
+          <p className="text-[13.5px] font-semibold text-foreground">{title}</p>
+          <p className="text-[12px] text-muted-foreground">{description}</p>
         </div>
       </div>
       <div className="px-6 py-5">{children}</div>
@@ -128,7 +121,7 @@ function SectionCard({
   );
 }
 
-//  Info Row ──
+// ── Info Row ──────────────────────────────────────────────────────────────────
 
 function InfoRow({
   icon: Icon,
@@ -141,11 +134,11 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#1f1f1f] text-[#555]">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-muted/50 text-muted-foreground/60">
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-[#555] mb-1">
+        <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           {label}
         </p>
         {children}
@@ -154,7 +147,7 @@ function InfoRow({
   );
 }
 
-//  Main Component ──
+// ── Main Component ────────────────────────────────────────────────────────────
 
 export function Profile() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -175,7 +168,6 @@ export function Profile() {
   const [editingUsername, setEditingUsername] = useState(false);
   const [draftUsername, setDraftUsername] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const startEditUsername = () => {
@@ -214,19 +206,16 @@ export function Profile() {
     e.target.value = "";
   };
 
-  // Auth is still resolving or profile is loading
-  if (authLoading || isLoading) {
-    return <ProfileSkeleton />;
-  }
+  if (authLoading || isLoading) return <ProfileSkeleton />;
 
   if (isError || !profile) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-6 py-5 text-center">
-          <p className="text-sm font-medium text-red-400">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-6 py-5 text-center">
+          <p className="text-[13px] font-medium text-destructive">
             Failed to load profile
           </p>
-          <p className="mt-1 text-xs text-[#666]">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             Please refresh the page and try again.
           </p>
         </div>
@@ -238,7 +227,7 @@ export function Profile() {
   const displayAvatar = avatarPreview ?? profile.avatar_url;
 
   return (
-    <div className="mx-auto w-full space-y-4 px-4 py-8">
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-8">
       {/* ── Avatar card ── */}
       <SectionCard
         title="Profile Photo"
@@ -246,29 +235,27 @@ export function Profile() {
         icon={Camera}
       >
         <div className="flex items-center gap-6">
-          {/* Avatar with camera overlay */}
+          {/* Avatar with hover overlay */}
           <div className="relative shrink-0">
             <AvatarDisplay avatarUrl={displayAvatar} initials={initials} />
-
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadAvatar.isPending}
               className={cn(
                 "absolute inset-0 flex items-center justify-center rounded-full",
-                "bg-black/70 opacity-0 transition-all duration-150 hover:opacity-100",
+                "bg-foreground/60 opacity-0 backdrop-blur-sm transition-all duration-150 hover:opacity-100",
                 "focus-visible:opacity-100 focus-visible:outline-none",
                 uploadAvatar.isPending && "opacity-100",
               )}
               aria-label="Upload new avatar"
             >
               {uploadAvatar.isPending ? (
-                <Loader2 className="h-5 w-5 animate-spin text-amber-400" />
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
               ) : (
-                <Camera className="h-5 w-5 text-amber-400" />
+                <Camera className="h-5 w-5 text-primary" />
               )}
             </button>
-
             <input
               title=""
               placeholder="Upload avatar"
@@ -282,17 +269,19 @@ export function Profile() {
 
           {/* Name + email + button */}
           <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-[14px] font-semibold text-foreground">
               {profile.username ?? initials}
             </p>
-            <p className="truncate text-xs text-[#666]">{profile.email}</p>
+            <p className="truncate text-[12.5px] text-muted-foreground">
+              {profile.email}
+            </p>
 
-            <div className="pt-2 flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadAvatar.isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs font-medium text-[#aaa] transition-colors hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-400 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:bg-primary/8 hover:text-primary disabled:opacity-50"
               >
                 {uploadAvatar.isPending ? (
                   <>
@@ -307,12 +296,12 @@ export function Profile() {
             </div>
 
             {uploadAvatar.isError && (
-              <p className="text-xs text-red-400 pt-1">
+              <p className="pt-1 text-[12px] text-destructive">
                 {uploadAvatar.error?.message}
               </p>
             )}
             {uploadAvatar.isSuccess && !avatarPreview && (
-              <p className="text-xs text-amber-400 pt-1">Photo updated.</p>
+              <p className="pt-1 text-[12px] text-primary">Photo updated.</p>
             )}
           </div>
         </div>
@@ -338,13 +327,13 @@ export function Profile() {
                     if (e.key === "Escape") cancelEditUsername();
                   }}
                   autoFocus
-                  className="h-8 border-[#2a2a2a] bg-[#1a1a1a] text-sm text-white placeholder:text-[#444] focus-visible:border-amber-500/50 focus-visible:ring-1 focus-visible:ring-amber-500/50"
+                  className="h-8 border-border bg-input text-[13px] text-foreground placeholder:text-muted-foreground/40 focus-visible:border-primary/40 focus-visible:ring-1 focus-visible:ring-primary/30"
                 />
                 <button
                   type="button"
                   onClick={saveUsername}
                   disabled={updateProfile.isPending || !draftUsername.trim()}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500 text-black transition-opacity hover:bg-amber-400 disabled:opacity-40"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-40"
                   aria-label="Save"
                 >
                   {updateProfile.isPending ? (
@@ -357,7 +346,7 @@ export function Profile() {
                   type="button"
                   onClick={cancelEditUsername}
                   disabled={updateProfile.isPending}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#666] transition-colors hover:text-white"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
                   aria-label="Cancel"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -365,15 +354,15 @@ export function Profile() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="flex h-8 flex-1 items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 text-sm text-white">
+                <div className="flex h-8 flex-1 items-center rounded-lg border border-border bg-input px-3 text-[13px] text-foreground">
                   {profile.username ?? (
-                    <span className="text-[#444]">Not set</span>
+                    <span className="text-muted-foreground/40">Not set</span>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={startEditUsername}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] text-[#555] transition-colors hover:border-amber-500/40 hover:text-amber-400"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground/60 transition-colors hover:border-primary/30 hover:bg-primary/8 hover:text-primary"
                   aria-label="Edit username"
                 >
                   <Pencil className="h-3.5 w-3.5" />
@@ -382,41 +371,40 @@ export function Profile() {
             )}
 
             {updateProfile.isError && (
-              <p className="mt-1 text-xs text-red-400">
+              <p className="mt-1.5 text-[12px] text-destructive">
                 {updateProfile.error?.message}
               </p>
             )}
             {updateProfile.isSuccess && !editingUsername && (
-              <p className="mt-1 text-xs text-amber-400">
+              <p className="mt-1.5 text-[12px] text-primary">
                 Username updated successfully.
               </p>
             )}
           </InfoRow>
 
-          <Separator className="bg-[#2a2a2a]" />
+          <Separator className="bg-border" />
 
           {/* Email — read-only */}
           <InfoRow icon={Mail} label="Email address">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 flex-1 items-center rounded-lg border border-[#222] bg-[#111] px-3 text-sm text-[#555] cursor-not-allowed select-none">
+              <div className="flex h-8 flex-1 items-center rounded-lg border border-border bg-muted/40 px-3 text-[13px] text-muted-foreground cursor-not-allowed select-none">
                 {profile.email}
               </div>
-              {/* Read-only badge matching the app's pill style */}
-              <span className="inline-flex items-center rounded-full border border-[#2a2a2a] bg-[#1a1a1a] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#444]">
+              <span className="inline-flex items-center rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                 locked
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-[#444]">
+            <p className="mt-1.5 text-[11.5px] text-muted-foreground/60">
               Contact support to update your email address.
             </p>
           </InfoRow>
 
-          <Separator className="bg-[#2a2a2a]" />
+          <Separator className="bg-border" />
 
           {/* Meta dates */}
           <div className="grid grid-cols-2 gap-4">
             <InfoRow icon={Calendar} label="Member since">
-              <p className="text-sm text-[#aaa]">
+              <p className="text-[13px] text-foreground">
                 {new Date(profile.created_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
@@ -425,7 +413,7 @@ export function Profile() {
               </p>
             </InfoRow>
             <InfoRow icon={Clock} label="Last updated">
-              <p className="text-sm text-[#aaa]">
+              <p className="text-[13px] text-foreground">
                 {new Date(profile.updated_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
@@ -437,13 +425,14 @@ export function Profile() {
         </div>
       </SectionCard>
 
-      {/* ── Security notice — matching the "Security Status" card language ── */}
-      <div className="flex items-center gap-3 rounded-xl border border-[#2a2a2a] bg-[#141414] px-5 py-3.5">
-        <Shield className="h-4 w-4 shrink-0 text-amber-500" />
-        <p className="text-xs text-[#666]">
+      {/* ── Security notice ── */}
+      <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-primary/5 px-5 py-3.5">
+        <Shield className="h-4 w-4 shrink-0 text-primary" />
+        <p className="text-[12.5px] text-muted-foreground">
           Your account is protected. Profile changes are logged for security.
         </p>
-        <span className="ml-auto inline-flex shrink-0 items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10.5px] font-semibold text-primary">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           Secure
         </span>
       </div>

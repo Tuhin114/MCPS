@@ -100,7 +100,7 @@ export function MediaToolbar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="fully-protected">Protected</SelectItem>
+              <SelectItem value="protected">Protected</SelectItem>
               <SelectItem value="encrypted">Encrypted</SelectItem>
               <SelectItem value="public">Public</SelectItem>
             </SelectContent>

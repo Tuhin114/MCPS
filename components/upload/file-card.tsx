@@ -1,9 +1,8 @@
 "use client";
 
-import { Trash2, Music, FileText, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Music, FileText, Play, X } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface FileCardProps {
   id: string;
@@ -14,6 +13,22 @@ interface FileCardProps {
   onDelete: (id: string) => void;
 }
 
+const TYPE_META: Record<
+  string,
+  { label: string; bg: string; icon: React.ReactNode }
+> = {
+  audio: {
+    label: "Audio",
+    bg: "bg-amber-950/60",
+    icon: <Music className="h-7 w-7 text-amber-400" />,
+  },
+  document: {
+    label: "Document",
+    bg: "bg-primary/8",
+    icon: <FileText className="h-7 w-7 text-primary" />,
+  },
+};
+
 export default function FileCard({
   id,
   name,
@@ -22,16 +37,6 @@ export default function FileCard({
   thumbnail,
   onDelete,
 }: FileCardProps) {
-  //   const getTypeLabel = (type: string) => {
-  //     const labels: Record<string, string> = {
-  //       image: "Image",
-  //       video: "Video",
-  //       audio: "Audio",
-  //       document: "Document",
-  //     };
-  //     return labels[type] || type;
-  //   };
-
   const renderThumbnail = () => {
     if (type === "image" && thumbnail) {
       return (
@@ -56,134 +61,64 @@ export default function FileCard({
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <Play className="h-12 w-12 text-white fill-white" />
-          </div>
-        </div>
-      );
-    }
-
-    if (type === "audio") {
-      return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-900 to-amber-950">
-          <div className="text-center">
-            <Music className="mx-auto h-8 w-8 text-amber-400" />
-            <div className="mt-2 h-8 w-full space-y-1 px-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-1 bg-amber-400/50 rounded" />
-              ))}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm ring-1 ring-white/20">
+              <Play className="h-4 w-4 fill-white text-white translate-x-0.5" />
             </div>
           </div>
         </div>
       );
     }
 
-    if (type === "document") {
+    const meta = TYPE_META[type];
+    if (meta) {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-red-600 to-red-700">
-          <FileText className="h-12 w-12 text-white" />
+        <div
+          className={cn(
+            "flex h-full w-full items-center justify-center",
+            meta.bg,
+          )}
+        >
+          {meta.icon}
         </div>
       );
     }
 
-    return <div className="h-full w-full bg-gray-700" />;
+    return <div className="h-full w-full bg-muted" />;
   };
 
+  const typeLabel =
+    TYPE_META[type]?.label ?? type.charAt(0).toUpperCase() + type.slice(1);
+
   return (
-    <Card
-      className="
-      group
-      overflow-hidden
-      rounded-xl
-      border-border
-      bg-card
-      transition-all
-      duration-200
-      hover:border-primary/30
-      hover:bg-surface-hover
-      hover:shadow-lg
-      hover:shadow-primary/5
-    "
-    >
-      <div className="relative">
-        <div className="aspect-square overflow-hidden bg-surface">
-          {renderThumbnail()}
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]">
+      {/* Thumbnail */}
+      <div className="relative aspect-square overflow-hidden bg-muted/40">
+        {renderThumbnail()}
+
+        {/* Type pill */}
+        <div className="absolute bottom-2 left-2">
+          <span className="rounded-md border border-primary/20 bg-background/80 px-1.5 py-0.5 text-[10px] font-medium text-primary backdrop-blur-sm">
+            {typeLabel}
+          </span>
         </div>
 
-        {/* Delete Button */}
-        <Button
-          variant="ghost"
-          size="icon"
+        {/* Delete */}
+        <button
           onClick={() => onDelete(id)}
-          className="
-          absolute
-          right-3
-          top-3
-          h-8
-          w-8
-          rounded-lg
-          border
-          border-red-500/20
-          bg-black/60
-          text-red-400
-          backdrop-blur-md
-          transition-all
-          hover:border-red-500/40
-          hover:bg-red-500/10
-          hover:text-red-300
-        "
+          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md border border-border/60 bg-background/80 text-muted-foreground opacity-0 backdrop-blur-sm transition-all duration-150 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+          aria-label="Remove file"
         >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-
-        {/* Type Badge */}
-        {/* <div className="absolute left-3 top-3">
-          <Badge
-            className="
-            border-primary/20
-            bg-primary/10
-            text-primary
-            backdrop-blur-md
-          "
-          >
-            {getTypeLabel(type)}
-          </Badge>
-        </div> */}
+          <X className="h-3.5 w-3.5" />
+        </button>
       </div>
 
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          <h4
-            className="
-            line-truncate
-            text-sm
-            font-medium
-            text-foreground"
-          >
-            {name}
-          </h4>
-
-          <div className="flex items-center justify-between">
-            <span
-              className="
-              text-xs
-              text-muted-foreground
-            "
-            >
-              {size}
-            </span>
-
-            <span
-              className="
-              text-xs
-              font-medium
-              text-primary
-            "
-            >
-              Protected
-            </span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Meta */}
+      <div className="px-3 py-2.5">
+        <p className="truncate text-[12.5px] font-medium text-foreground">
+          {name}
+        </p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{size}</p>
+      </div>
+    </div>
   );
 }
