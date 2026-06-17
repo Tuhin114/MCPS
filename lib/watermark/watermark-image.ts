@@ -1,45 +1,81 @@
+import fs from "fs/promises";
+import path from "path";
 import sharp from "sharp";
-import { createCanvas } from "@napi-rs/canvas";
+
+function escapeXml(str: string) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
 export async function applyImageWatermark(
   buffer: Buffer,
   watermarkText: string,
 ): Promise<Buffer> {
   const image = sharp(buffer);
+
   const metadata = await image.metadata();
 
   const width = metadata.width ?? 1200;
   const height = metadata.height ?? 800;
 
-  const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext("2d");
-
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
-  ctx.font = `bold ${fontSize}px sans-serif`;
-  ctx.fillStyle = "rgba(255,255,255,0.15)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  const fontPath = path.join(process.cwd(), "public/fonts/Inter_18pt-Bold.ttf");
+
+  const fontBuffer = await fs.readFile(fontPath);
+
+  const fontBase64 = fontBuffer.toString("base64");
+
+  const safeText = escapeXml(watermarkText);
+
+  let texts = "";
 
   for (let y = -200; y < height + 200; y += 220) {
     for (let x = -200; x < width + 200; x += 320) {
-      ctx.save();
-
-      ctx.translate(x, y);
-      ctx.rotate((-30 * Math.PI) / 180);
-
-      ctx.fillText(watermarkText, 0, 0);
-
-      ctx.restore();
+      texts += `
+        <text
+          x="${x}"
+          y="${y}"
+          fill="rgba(255,255,255,0.15)"
+          font-size="${fontSize}"
+          font-family="Inter"
+          font-weight="700"
+          transform="rotate(-30 ${x} ${y})"
+        >
+          ${safeText}
+        </text>
+      `;
     }
   }
 
-  const overlayBuffer = await canvas.encode("png");
+  const svg = `
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="${width}"
+    height="${height}"
+  >
+    <defs>
+      <style>
+        @font-face {
+          font-family: 'Inter';
+          src: url(data:font/ttf;base64,${fontBase64})
+            format('truetype');
+        }
+      </style>
+    </defs>
+
+    ${texts}
+  </svg>
+  `;
 
   return image
     .composite([
       {
-        input: overlayBuffer,
+        input: Buffer.from(svg),
         top: 0,
         left: 0,
       },
