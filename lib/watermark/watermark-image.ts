@@ -1,70 +1,48 @@
 import sharp from "sharp";
-
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
+import { createCanvas } from "@napi-rs/canvas";
 
 export async function applyImageWatermark(
   buffer: Buffer,
   watermarkText: string,
 ): Promise<Buffer> {
   const image = sharp(buffer);
-
   const metadata = await image.metadata();
 
   const width = metadata.width ?? 1200;
   const height = metadata.height ?? 800;
 
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
+
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
-  const safeText = escapeXml(watermarkText);
-
-  let texts = "";
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
 
   for (let y = -200; y < height + 200; y += 220) {
     for (let x = -200; x < width + 200; x += 320) {
-      texts += `
-        <text
-          x="${x}"
-          y="${y}"
-          fill="rgba(255,255,255,0.15)"
-          font-size="${fontSize}"
-          font-family="sans-serif"
-          font-weight="700"
-          text-anchor="middle"
-          dominant-baseline="middle"
-          transform="rotate(-30 ${x} ${y})"
-        >
-          ${safeText}
-        </text>
-      `;
+      ctx.save();
+
+      ctx.translate(x, y);
+      ctx.rotate((-30 * Math.PI) / 180);
+
+      ctx.fillText(watermarkText, 0, 0);
+
+      ctx.restore();
     }
   }
 
-  const svg = `
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="${width}"
-      height="${height}"
-      viewBox="0 0 ${width} ${height}"
-    >
-      ${texts}
-    </svg>
-  `;
+  const overlayBuffer = await canvas.encode("png");
 
   return image
     .composite([
       {
-        input: Buffer.from(svg),
+        input: overlayBuffer,
         top: 0,
         left: 0,
       },
     ])
-    .png()
     .toBuffer();
 }
