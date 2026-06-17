@@ -19,12 +19,6 @@ export async function applyImageWatermark(
 
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
-  const pathData = textToSVG.getD("MCPS TEST", {
-    fontSize: 64,
-  });
-
-  console.log(pathData);
-
   let paths = "";
 
   for (let y = -200; y < height + 200; y += 220) {
