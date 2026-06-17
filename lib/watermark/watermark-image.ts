@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+import { readFileSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 
@@ -24,9 +24,9 @@ export async function applyImageWatermark(
 
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
-  const fontPath = path.join(process.cwd(), "public/fonts/Inter_18pt-Bold.ttf");
-
-  const fontBuffer = await fs.readFile(fontPath);
+  const fontBuffer = readFileSync(
+    path.join(__dirname, "../public/fonts/Inter_18pt-Bold.ttf"),
+  );
 
   const fontBase64 = fontBuffer.toString("base64");
 
