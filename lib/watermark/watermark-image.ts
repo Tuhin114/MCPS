@@ -25,7 +25,7 @@ export async function applyImageWatermark(
   const fontSize = Math.max(Math.min(width, height) / 18, 24);
 
   const fontBuffer = readFileSync(
-    path.join(__dirname, "../public/fonts/Inter_18pt-Bold.ttf"),
+    path.join(process.cwd(), "public", "fonts", "Inter_18pt-Bold.ttf"),
   );
 
   const fontBase64 = fontBuffer.toString("base64");
