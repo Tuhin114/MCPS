@@ -53,24 +53,20 @@ export async function applyImageWatermark(
   }
 
   const svg = `
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="${width}"
-    height="${height}"
-  >
-    <defs>
-      <style>
-        @font-face {
-          font-family: 'Inter';
-          src: url(data:font/ttf;base64,${fontBase64})
-            format('truetype');
-        }
-      </style>
-    </defs>
-
-    ${texts}
-  </svg>
-  `;
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="${width}"
+  height="${height}"
+>
+  <rect
+    x="100"
+    y="100"
+    width="400"
+    height="200"
+    fill="red"
+  />
+</svg>
+`;
 
   return image
     .composite([

@@ -32,6 +32,7 @@
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
+    "text-to-svg": "^3.1.5",
     "uuid": "^14.0.0",
     "vaul": "^1.1.2"
   },
