@@ -3,12 +3,12 @@
 import { motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
-import { Activity } from "@/types/dashboard";
+import { Activity } from "@/lib/mcps-data";
 
 const dotStyles: Record<string, string> = {
-  success: "bg-primary shadow-primary/40",
-  info: "bg-chart-2 shadow-chart-2/40",
-  warning: "bg-destructive shadow-destructive/40",
+  success: "bg-green-500 shadow-green-500/40",
+  info: "bg-yellow-500 shadow-yellow-500/40",
+  warning: "bg-red-500 shadow-red-500/40",
 };
 
 export function ActivityOverview({ data }: { data?: Activity[] | undefined }) {
@@ -51,7 +51,7 @@ export function ActivityOverview({ data }: { data?: Activity[] | undefined }) {
                     {activity.title}
                   </p>
                   <span className="shrink-0 text-[11px] text-muted-foreground">
-                    {activity.created_at}
+                    {activity.timestamp}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">

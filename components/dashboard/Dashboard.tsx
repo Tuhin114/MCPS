@@ -6,6 +6,7 @@ import { StorageAnalytics } from "./storage-analytics";
 import { SecurityStatus } from "./security-status";
 import { QuickActions } from "./quick-actions";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { storageBreakdown, activities } from "@/lib/mcps-data";
 
 export default function Dashboard() {
   const { data, isLoading, error } = useDashboardData();
@@ -27,12 +28,12 @@ export default function Dashboard() {
           <RecentUploads data={data?.recentUploads} />
         </div>
         <div>
-          <ActivityOverview data={data?.activities} />
+          <ActivityOverview data={activities} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <StorageAnalytics data={data?.storageBreakdown} />
+        <StorageAnalytics data={storageBreakdown} />
         <SecurityStatus data={data?.securityChecks} />
       </div>
 
