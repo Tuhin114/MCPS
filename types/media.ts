@@ -8,6 +8,8 @@ export interface Media {
   size_bytes: number;
   is_encrypted: boolean;
   is_watermarked: boolean;
+  is_public: boolean;
+  made_public_at?: string | null;
   download_count?: number;
   watermark_text: string | null;
   encryption_algorithm: string | null;
@@ -30,6 +32,8 @@ export interface MyMediaItem {
   is_encrypted: boolean;
   is_watermarked: boolean;
   watermark_text: string | null;
+  is_public: boolean;
+  made_public_at?: string | null;
   created_at: string;
   shared_with: SharedWith[];
 }
@@ -115,7 +119,8 @@ export interface UpdateMediaPayload {
   file_name?: string;
   is_encrypted?: boolean;
   is_watermarked?: boolean;
-  watermark_text?: string | null;
+  watermark_text?: string;
+  is_public?: boolean;
 }
 
 export interface UpdateMediaResponse {

@@ -4,10 +4,8 @@ import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import type { ApiError } from "@/types/media";
 import { mediaKeys } from "./useMedia";
 
-// ── Type ──────────────────────────────────────────────────────────────────────
-
 export interface PublicMediaResponse {
-  /** Media metadata — sensitive encryption fields stripped server-side */
+  /** Media metadata — sensitive encryption + storage fields stripped server-side */
   media: {
     id: string;
     file_name: string;
@@ -16,6 +14,7 @@ export interface PublicMediaResponse {
     size_bytes: number;
     is_encrypted: boolean;
     is_watermarked: boolean;
+    is_public: boolean;
     created_at: string;
     owner_id: string;
   };
@@ -25,14 +24,10 @@ export interface PublicMediaResponse {
   permission: "view" | "download";
 }
 
-// ── Extended query keys ───────────────────────────────────────────────────────
-
 export const publicMediaKeys = {
   ...mediaKeys,
   public: (id: string) => [...mediaKeys.all, "public", id] as const,
 };
-
-// ── Fetch helper ──────────────────────────────────────────────────────────────
 
 async function fetchPublicMedia(id: string): Promise<PublicMediaResponse> {
   const res = await fetch(`/api/media/${id}/public`);
@@ -43,18 +38,6 @@ async function fetchPublicMedia(id: string): Promise<PublicMediaResponse> {
   return res.json();
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
-/**
- * Checks whether a media item is publicly shared and fetches its metadata
- * + content URL. No authentication required.
- *
- * Usage:
- *   const { data, isLoading, isError, error } = usePublicMedia(id);
- *   data.contentUrl  → pass to viewer
- *   data.media       → file_name, mime_type, etc.
- *   data.permission  → "view" | "download"
- */
 export function usePublicMedia(
   id: string,
   options?: Omit<

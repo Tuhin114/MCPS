@@ -106,6 +106,9 @@ export async function PATCH(
     updates.is_watermarked = body.is_watermarked;
   if (body.watermark_text !== undefined)
     updates.watermark_text = body.watermark_text;
+  // Public-link toggle — owner-only, enforced by the ownership check above.
+  // made_public_at is kept in sync automatically by a DB trigger, don't set it here.
+  if (body.is_public !== undefined) updates.is_public = body.is_public;
 
   const { data: media, error: updateError } = await supabase
     .from("media")

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -22,14 +23,13 @@ import { StatusBadge } from "./status-badge";
 import { SharedUsersAvatar } from "./shared-users-avatar";
 import { UpdateDialog } from "./update-dialog";
 import { DeleteDialog } from "./delete-dialog";
-import { Download, MoreHorizontal, Eye, Loader2 } from "lucide-react";
+import { Download, MoreHorizontal, Eye, Loader2, Activity } from "lucide-react";
 
 import { formatFileSize } from "@/lib/dashboard-utils";
 import { formatDate } from "@/lib/helper";
 import { ShareMediaDialog } from "./share-dialog";
 import { MyMediaItem } from "@/types/media";
 import { FileTypeBadge } from "./FileTypeBadge";
-import { useState } from "react";
 import { useDownloadMedia, useViewContent } from "@/hooks/useMedia";
 import { MediaViewerDrawer } from "./media-view-drawer";
 
@@ -44,6 +44,7 @@ interface MediaTableProps {
     encrypted: boolean,
     watermarked: boolean,
     watermarkText: string,
+    isPublic: boolean,
   ) => void;
   onDelete: (item: MyMediaItem) => void;
   onDownload: (item: MyMediaItem) => void;
@@ -54,15 +55,22 @@ function ActionsDropdown({
   onUpdate,
   onDelete,
   onView,
+  onViewActivity,
 }: {
   item: MyMediaItem;
   onShare: (item: MyMediaItem, emails: string[]) => void;
   onUpdate: MediaTableProps["onUpdate"];
   onDelete: (item: MyMediaItem) => void;
   onView: (item: MyMediaItem) => void;
+  onViewActivity: (item: MyMediaItem) => void;
 }) {
+  // Controlled so we can explicitly close it after any nested dialog
+  // (Update/Delete) finishes — see file header comment for why this is
+  // necessary rather than optional.
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
           <MoreHorizontal className="h-4 w-4" />
@@ -70,21 +78,40 @@ function ActionsDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {/* View */}
+        {/* View — no nested dialog, so default close-on-select is fine,
+            but close explicitly too for consistency. */}
         <DropdownMenuItem
           className="gap-2 cursor-pointer"
-          onClick={() => onView(item)}
+          onClick={() => {
+            onView(item);
+            setMenuOpen(false);
+          }}
         >
           <Eye className="h-4 w-4" />
           View
         </DropdownMenuItem>
 
+        {/* Activity log — same, no nested dialog. */}
+        <DropdownMenuItem
+          className="gap-2 cursor-pointer"
+          onClick={() => {
+            onViewActivity(item);
+            setMenuOpen(false);
+          }}
+        >
+          <Activity className="h-4 w-4" />
+          Activity
+        </DropdownMenuItem>
+
         <DropdownMenuSeparator />
 
-        {/* Update — renders its own dialog, we use asChild pattern */}
+        {/* Update — has a nested Dialog, so onSelect prevents the
+            default auto-close, and onDialogClose closes the dropdown
+            once the Update dialog itself is done (success or cancel). */}
         <UpdateDialog
           item={item}
           onUpdate={onUpdate}
+          onDialogClose={() => setMenuOpen(false)}
           trigger={
             <DropdownMenuItem
               className="gap-2 cursor-pointer"
@@ -95,10 +122,11 @@ function ActionsDropdown({
           }
         />
 
-        {/* Delete — same pattern */}
+        {/* Delete — same pattern. */}
         <DeleteDialog
           item={item}
           onDelete={onDelete}
+          onDialogClose={() => setMenuOpen(false)}
           trigger={
             <DropdownMenuItem
               className="gap-2 cursor-pointer text-destructive focus:text-destructive"
@@ -262,6 +290,7 @@ export function MediaTable({
                 <StatusBadge
                   is_encrypted={item.is_encrypted}
                   is_watermarked={item.is_watermarked}
+                  is_public={item.is_public}
                 />
               </TableCell>
               <TableCell>
@@ -301,6 +330,9 @@ export function MediaTable({
                     onUpdate={onUpdate}
                     onDelete={onDelete}
                     onView={handleView}
+                    onViewActivity={() => {
+                      // setActivityItem(item);
+                    }}
                   />
                 </div>
               </TableCell>
@@ -318,6 +350,7 @@ export function MediaTable({
         isDownloading={isDownloading}
         onDownload={download}
       />
+      {/* {activityItem} */}
     </div>
   );
 }
