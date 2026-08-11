@@ -1,6 +1,5 @@
 import { encryptFile, fileToBuffer } from "@/lib/encryption";
 import { getFileType } from "@/lib/helper";
-import { applyWatermark } from "@/lib/watermark/watermark";
 import {
   AllUsers,
   Media,
@@ -29,14 +28,13 @@ export async function uploadMedia(
   let ivHex: string | null = null;
   let encryptionAlgorithm: string | null = null;
 
-  // Watermark first
-  if (file.watermark && file.watermarkText) {
-    uploadBuffer = await applyWatermark(
-      uploadBuffer,
-      file.file.type,
-      file.watermarkText,
-    );
-  }
+  // NOTE: watermarking is intentionally NOT applied here. The file stored
+  // in the bucket is always the clean original — watermarking happens on
+  // every read instead (see lib/media-serving.ts + lib/watermark/watermark.ts).
+  // This is what lets the owner toggle the watermark on/off or edit the
+  // watermark text later without needing to re-upload the file: only the
+  // is_watermarked / watermark_text columns below change, and the content
+  // routes pick that up on the very next request.
 
   // Encrypt the file if requested
   if (shouldEncrypt) {
@@ -44,7 +42,7 @@ export async function uploadMedia(
     uploadBuffer = result.encryptedBuffer;
     encryptedKey = result.encryptedKey;
     ivHex = result.iv;
-    encryptionAlgorithm = "AES-256-CBC";
+    encryptionAlgorithm = "AES-256-GCM";
     // Store encrypted files under a separate prefix
     storagePath = `${userId}/enc_${generatedFileName}`;
   }
@@ -79,7 +77,7 @@ export async function uploadMedia(
       watermark_text: file.watermarkText || null,
       encryption_algorithm: encryptionAlgorithm,
       encrypted_key: encryptedKey, // master-key-wrapped DEK
-      iv: ivHex, // hex IV for file cipher
+      iv: ivHex, // "<iv>:<authTag>" hex for file cipher (AES-256-GCM)
     })
     .select()
     .single();

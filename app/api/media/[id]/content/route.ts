@@ -1,21 +1,6 @@
-/**
- * GET /api/media/[id]/content
- *
- * Secure file delivery endpoint — used for both download and in-browser viewing.
- *
- * Access is granted when the authenticated user is:
- *   (a) the file owner  (media.owner_id === user.id), OR
- *   (b) listed in shared_media with shared_with === user.id AND
- *       (expires_at IS NULL OR expires_at > now())
- *
- * Query params:
- *   ?inline=1   →  Content-Disposition: inline  (browser renders it)
- *   (default)   →  Content-Disposition: attachment  (browser downloads it)
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { decryptFile, fileToBuffer } from "@/lib/encryption";
+import { prepareMediaBuffer, MediaServingError } from "@/lib/media-serving";
 import { Media } from "@/types/media";
 
 const BUCKET = "protected-media";
@@ -39,6 +24,7 @@ export async function GET(
 
     const { id } = await params;
     const inline = request.nextUrl.searchParams.get("inline") === "1";
+    const isDownload = !inline;
 
     //  2. Fetch media row (no owner filter yet — we check access below)
     const { data: media, error: mediaError } = await supabase
@@ -89,7 +75,6 @@ export async function GET(
       .from(BUCKET)
       .download(media.storage_path);
 
-    console.log(storageError);
     if (storageError || !blob) {
       return NextResponse.json(
         { error: `Storage error: ${storageError?.message}` },
@@ -97,37 +82,29 @@ export async function GET(
       );
     }
 
-    console.log(media);
-
-    //  5. Decrypt if needed
+    //  5. Decrypt (if needed) + watermark (if needed) — shared logic
     let fileBuffer: Buffer;
-
-    if (media.is_encrypted) {
-      if (!media.encrypted_key || !media.iv) {
+    try {
+      fileBuffer = await prepareMediaBuffer(media, blob);
+    } catch (err) {
+      if (err instanceof MediaServingError) {
         return NextResponse.json(
-          { error: "Encryption metadata missing" },
-          { status: 500 },
+          { error: err.message },
+          { status: err.status },
         );
       }
-      try {
-        const encryptedBuffer = await fileToBuffer(blob);
-        fileBuffer = decryptFile(
-          encryptedBuffer,
-          media.encrypted_key,
-          media.iv,
-        );
-      } catch (err) {
-        console.error("[content] Decryption failed:", err);
-        return NextResponse.json(
-          { error: "Failed to decrypt file" },
-          { status: 500 },
-        );
-      }
-    } else {
-      fileBuffer = await fileToBuffer(blob);
+      throw err;
     }
 
-    //  6. Build response ─
+    //  6. Increment download counter on actual downloads (not inline views)
+    if (isDownload) {
+      await supabase
+        .from("media")
+        .update({ download_count: (media.download_count ?? 0) + 1 })
+        .eq("id", id);
+    }
+
+    //  7. Build response ─
     const contentType = media.mime_type || "application/octet-stream";
     const safeFileName = encodeURIComponent(media.file_name).replace(
       /['()]/g,
