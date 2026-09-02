@@ -63,7 +63,7 @@ export function HeroSection() {
         muted
         playsInline
         className="absolute inset-0 h-full w-full object-cover"
-        src="/video.mp4"
+        src="https://anfwqskgldswncpryacz.supabase.co/storage/v1/object/public/public-assets/video.mp4"
       />
 
       {/* ── Layered overlays on top of video ── */}
@@ -193,3 +193,4 @@ export function HeroSection() {
     </section>
   );
 }
+

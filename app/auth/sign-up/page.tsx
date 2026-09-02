@@ -44,7 +44,7 @@ export default function Page() {
             playsInline
             className="h-full w-full object-cover opacity-30 mix-blend-screen"
           >
-            <source src="/video.mp4" type="video/mp4" />
+            <source src="https://anfwqskgldswncpryacz.supabase.co/storage/v1/object/public/public-assets/video.mp4" type="video/mp4" />
           </video>
           {/* Gradients to blend */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
@@ -68,3 +68,4 @@ export default function Page() {
     </div>
   );
 }
+
