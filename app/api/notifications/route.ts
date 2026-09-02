@@ -1,3 +1,5 @@
+
+
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import type { CreateNotificationPayload } from "@/types/notification.ts";
@@ -5,7 +7,7 @@ import type { CreateNotificationPayload } from "@/types/notification.ts";
 //  GET /api/notifications
 // Returns enriched notifications + unread count for the authenticated user.
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
 
   const {
@@ -102,3 +104,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true }, { status: 201 });
 }
+

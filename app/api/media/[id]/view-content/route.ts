@@ -1,3 +1,4 @@
+
 /**
  * GET /api/media/[id]/view-content
  *
@@ -23,8 +24,8 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const supabase = await createClient();
   try {
-    const supabase = await createClient();
 
     // ── 1. Auth ───────────────────────────────────────────────────────────────
     const {
@@ -92,3 +93,5 @@ export async function GET(
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+

@@ -154,7 +154,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row">
           <p className="text-sm font-medium text-muted-foreground">
-            &copy; {new Date().getFullYear()} MCPS. All rights reserved.
+            &copy; 2026 MCPS. All rights reserved.
           </p>
           <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             Built with <span className="text-amber-500 font-bold">security</span> in mind.

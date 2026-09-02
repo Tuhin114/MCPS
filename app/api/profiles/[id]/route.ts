@@ -1,3 +1,4 @@
+
 // app/api/profiles/[id]/route.ts
 
 import { createClient } from "@/lib/supabase/server";
@@ -9,9 +10,9 @@ type Params = { params: Promise<{ id: string }> };
 // ─── GET /api/profiles/[id] ───────────────────────────────────────────────────
 
 export async function GET(_req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params;
+  const { id } = await params;
     const supabase = await createClient();
+  try {
 
     // Ensure the caller is authenticated
     const {
@@ -40,9 +41,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // ─── PATCH /api/profiles/[id] ─────────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params;
+  const { id } = await params;
     const supabase = await createClient();
+  try {
 
     const {
       data: { user },
@@ -77,3 +78,5 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+

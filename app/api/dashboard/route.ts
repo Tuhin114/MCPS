@@ -1,10 +1,12 @@
+
+
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/services/dashboard.service";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const supabase = await createClient();
   try {
-    const supabase = await createClient();
 
     const {
       data: { user },
@@ -38,3 +40,5 @@ export async function GET() {
     );
   }
 }
+
+

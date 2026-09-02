@@ -29,7 +29,7 @@ export default function Page() {
           </div>
         </div>
         <div className="relative mt-auto text-sm font-medium text-muted-foreground text-center md:text-left">
-          &copy; {new Date().getFullYear()} MCPS. All rights reserved.
+          &copy; 2026 MCPS. All rights reserved.
         </div>
       </div>
 
