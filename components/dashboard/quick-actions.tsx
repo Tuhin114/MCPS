@@ -21,7 +21,7 @@ export function QuickActions() {
         <p className="mt-1 text-xs font-medium text-muted-foreground/80">Jump straight to common tasks</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 p-6 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action, i) => (
           <MotionLink
             key={action.title}

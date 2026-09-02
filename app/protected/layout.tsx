@@ -12,9 +12,9 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-background">
+      <SidebarInset className="bg-background min-w-0">
         <TopNav />
-        <main className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+        <main className="flex flex-1 flex-col gap-6 p-4 md:p-6 min-w-0 w-full overflow-x-hidden">
           {children}
         </main>
       </SidebarInset>

@@ -62,8 +62,16 @@ export function HeroSection() {
         loop
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover"
+        className="hidden sm:block absolute inset-0 h-full w-full object-cover"
         src="https://anfwqskgldswncpryacz.supabase.co/storage/v1/object/public/public-assets/video.mp4"
+      />
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="block sm:hidden absolute inset-0 h-full w-full object-cover"
+        src="https://anfwqskgldswncpryacz.supabase.co/storage/v1/object/public/public-assets/video2.mp4"
       />
 
       {/* ── Layered overlays on top of video ── */}

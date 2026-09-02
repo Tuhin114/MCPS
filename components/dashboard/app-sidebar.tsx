@@ -74,7 +74,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       {/* ── Main nav + account nav pushed to bottom ── */}
-      <SidebarContent className="flex flex-col gap-0 overflow-hidden bg-transparent">
+      <SidebarContent className="flex flex-col gap-0 overflow-y-auto bg-transparent">
         {/* Platform nav fills the top */}
         <SidebarGroup className="flex-1 px-3 pt-6 pb-2">
           <SidebarGroupLabel className="mb-3 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground/50">
