@@ -24,11 +24,27 @@ function ScrollProgress() {
   );
 }
 
+import { createClient } from "@/lib/supabase/client";
+
 // ── Main Navbar ───────────────────────────────────────────────────────────────
 export function Navbar() {
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [scrolled,   setScrolled]     = useState(false);
   const [activeLink, setActiveLink]   = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+    
+    return () => subscription.unsubscribe();
+  }, []);
 
   // ── Scroll state ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -144,28 +160,46 @@ export function Navbar() {
 
           {/* ── Desktop CTAs ── */}
           <div className="hidden items-center gap-2.5 md:flex">
-            {/* Sign in — ghost */}
-            <Link
-              href="/auth/login"
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
-            >
-              Sign in
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/protected">
+                <motion.div
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative overflow-hidden flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-black shadow-lg shadow-amber-500/25 hover:bg-amber-400 hover:shadow-amber-500/40 transition-all duration-200"
+                >
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    Dashboard
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </motion.div>
+              </Link>
+            ) : (
+              <>
+                {/* Sign in — ghost */}
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+                >
+                  Sign in
+                </Link>
 
-            {/* Get Started — amber CTA */}
-            <Link href="/auth/sign-up">
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-black shadow-lg shadow-amber-500/25 hover:bg-amber-400 hover:shadow-amber-500/40 transition-all duration-200"
-              >
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                <span className="relative z-10 flex items-center gap-1.5">
-                  Get Started
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </motion.div>
-            </Link>
+                {/* Get Started — amber CTA */}
+                <Link href="/auth/sign-up">
+                  <motion.div
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="group relative overflow-hidden flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-black shadow-lg shadow-amber-500/25 hover:bg-amber-400 hover:shadow-amber-500/40 transition-all duration-200"
+                  >
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      Get Started
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </motion.div>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* ── Mobile hamburger ── */}
@@ -246,20 +280,32 @@ export function Navbar() {
                   transition={{ delay: 0.25 }}
                   className="flex flex-col gap-2"
                 >
-                  <Link
-                    href="/auth/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-center text-sm font-medium text-foreground hover:bg-white/10 transition-all"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/auth/sign-up"
-                    onClick={() => setMobileOpen(false)}
-                    className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-center text-sm font-semibold text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25 transition-all"
-                  >
-                    Get Started — It&apos;s Free
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link
+                      href="/protected"
+                      onClick={() => setMobileOpen(false)}
+                      className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-center text-sm font-semibold text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25 transition-all"
+                    >
+                      Go to Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/auth/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-center text-sm font-medium text-foreground hover:bg-white/10 transition-all"
+                      >
+                        Sign in
+                      </Link>
+                      <Link
+                        href="/auth/sign-up"
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-center text-sm font-semibold text-black hover:bg-amber-400 shadow-lg shadow-amber-500/25 transition-all"
+                      >
+                        Get Started — It&apos;s Free
+                      </Link>
+                    </>
+                  )}
                 </motion.div>
 
                 {/* Trust line */}

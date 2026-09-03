@@ -19,7 +19,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { mainNav, accountNav, type NavItem } from "@/lib/nav";
-import { ThemeSwitcher } from "../theme-switcher";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -96,7 +95,6 @@ export function AppSidebar() {
             <SidebarMenu className="gap-1.5 mb-2">
               {accountNav.map(renderItem)}
             </SidebarMenu>
-            <ThemeSwitcher />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
