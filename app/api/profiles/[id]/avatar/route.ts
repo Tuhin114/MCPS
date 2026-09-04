@@ -1,3 +1,4 @@
+
 // app/api/profiles/[id]/avatar/route.ts
 
 import { createClient } from "@/lib/supabase/server";
@@ -18,9 +19,9 @@ const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 //  POST /api/profiles/[id]/avatar
 
 export async function POST(req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params;
+  const { id } = await params;
     const supabase = await createClient();
+  try {
 
     const {
       data: { user },
@@ -67,3 +68,5 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+

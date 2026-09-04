@@ -1,3 +1,5 @@
+
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { uploadMedia } from "@/services/media.service";
@@ -10,8 +12,8 @@ const UPLOAD_LIMIT = 20;
 const UPLOAD_WINDOW_MS = 15 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
   try {
-    const supabase = await createClient();
 
     const {
       data: { user },
@@ -61,3 +63,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+

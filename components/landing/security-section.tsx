@@ -1,154 +1,161 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Shield, Lock, Key, Server, Eye, CheckCircle2, Zap } from "lucide-react"
-import { BackgroundLines } from "@/components/ui/aceternity-effects"
+import { motion } from "framer-motion";
+import { Shield, Lock, Key, Server, Eye, FileDigit, Zap, Layers } from "lucide-react";
+import { BackgroundLines } from "@/components/ui/aceternity-effects";
 
 const securityFeatures = [
   {
     icon: Shield,
     title: "AES-256 Encryption",
-    description: "Military-grade encryption protects every file you upload.",
+    description: "Every file is encrypted with a unique 256-bit Data Encryption Key (DEK).",
   },
   {
-    icon: Key,
-    title: "Key Management",
-    description: "Encryption keys are managed securely on our servers.",
+    icon: Layers,
+    title: "Envelope Encryption",
+    description: "Data keys are themselves wrapped and encrypted by a secure Master Key (MEK).",
   },
   {
     icon: Server,
     title: "Secure Infrastructure",
-    description: "Distributed storage with multiple redundancy layers.",
-  },
-  {
-    icon: Lock,
-    title: "Zero-Knowledge",
-    description: "Your files remain encrypted even to our systems.",
+    description: "Encrypted blobs are stored in private cloud buckets with zero public access.",
   },
   {
     icon: Eye,
-    title: "Access Verification",
-    description: "Multi-factor authentication for sensitive operations.",
+    title: "Runtime Decryption",
+    description: "Files are decrypted on-the-fly into memory and streamed directly to authorized viewers.",
   },
   {
-    icon: CheckCircle2,
-    title: "Compliance Ready",
-    description: "SOC 2 Type II and GDPR compliant infrastructure.",
+    icon: FileDigit,
+    title: "Embedded Watermarking",
+    description: "Custom visual watermarks are burned into the binary data prior to encryption.",
   },
-]
+  {
+    icon: Lock,
+    title: "Strict Access Control",
+    description: "Time-limited and revocable sharing links ensure total ownership control.",
+  },
+];
 
 export function SecuritySection() {
   return (
-    <section id="security" className="relative overflow-hidden py-32">
-      {/* Background */}
+    <section id="security" className="relative overflow-hidden py-32 bg-background">
+      {/* ── Background ── */}
       <div className="absolute inset-0 bg-card/30" />
-      <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
       
       {/* Background lines effect */}
-      <BackgroundLines className="opacity-30" />
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        <BackgroundLines className="w-full h-full" />
+      </div>
       
       {/* Ambient glow */}
-      <div className="absolute right-0 top-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
-      <div className="absolute left-0 bottom-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px]" />
+      <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[130px] animate-pulse pointer-events-none" style={{ animationDuration: '6s' }} />
+      <div className="absolute left-0 bottom-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: '7s' }} />
 
-      <div className="relative z-10 container mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="grid items-center gap-16 lg:grid-cols-2">
-          {/* Left Content */}
+          {/* ── Left Content ── */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-medium mb-6">
-              <Zap className="w-3.5 h-3.5" />
-              Enterprise Security
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-semibold mb-6 backdrop-blur-md">
+              <Zap className="w-4 h-4" />
+              Cryptography Core
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-[1.1] tracking-tight">
               Bank-Grade Security{" "}
-              <span className="gradient-text-amber">You Can Trust</span>
+              <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-amber-700">
+                You Can Trust
+              </span>
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              Your files are protected by the same encryption standards used by
-              governments and financial institutions worldwide.
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed font-medium">
+              Your files are protected by AES-256 envelope encryption. From the moment 
+              of upload to the final streaming view, we ensure raw files never rest on disk unencrypted.
             </p>
 
             {/* Security Visual */}
-            <div className="relative">
+            <div className="relative mt-8">
               <motion.div 
-                className="rounded-2xl border border-border/50 bg-card/80 p-6 backdrop-blur-xl"
-                whileHover={{ scale: 1.02 }}
+                className="rounded-3xl border border-white/10 bg-black/40 p-8 backdrop-blur-xl shadow-2xl"
+                whileHover={{ scale: 1.01 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
-                    <Shield className="h-6 w-6 text-amber-500" />
+                <div className="mb-6 flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/20">
+                    <Shield className="h-7 w-7 text-black" />
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">Server-Side Protection</div>
-                    <div className="text-sm text-muted-foreground">
-                      All encryption keys managed securely
+                    <div className="text-lg font-bold text-foreground">Server-Side Pipeline</div>
+                    <div className="text-sm font-medium text-muted-foreground">
+                      Secure envelope encryption architecture
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
-                    { icon: Lock, title: "Files remain encrypted in storage", desc: "Protected inside secure cloud infrastructure" },
-                    { icon: Key, title: "Server controls all encryption keys", desc: "No client-side key exposure" },
-                    { icon: Server, title: "Distributed redundant storage", desc: "99.99% uptime guarantee" },
+                    { icon: Lock, title: "Files remain encrypted in storage", desc: "Stored in isolated secure buckets" },
+                    { icon: Key, title: "Master Key (MEK) Wrapping", desc: "Unique data keys per file" },
+                    { icon: Server, title: "In-memory decryption streaming", desc: "No temp files left on disk" },
                   ].map((item, i) => (
                     <motion.div
                       key={item.title}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: 0.2 + i * 0.1 }}
-                      className="flex items-center gap-3 rounded-lg border border-border/30 bg-muted/20 p-3 hover:border-amber-500/30 hover:bg-muted/40 transition-all cursor-default"
+                      transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
+                      className="flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 p-4 hover:border-amber-500/30 hover:bg-white/10 transition-all cursor-default"
                     >
-                      <item.icon className="h-5 w-5 text-amber-500" />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-foreground">{item.title}</div>
-                        <div className="text-xs text-muted-foreground">{item.desc}</div>
+                      <div className="p-2 bg-black/30 rounded-lg">
+                        <item.icon className="h-5 w-5 text-amber-500" />
                       </div>
-                      <div className="h-2 w-2 rounded-full bg-green-500 ring-4 ring-green-500/20" />
+                      <div className="flex-1">
+                        <div className="text-sm font-bold text-foreground">{item.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>
+                      </div>
+                      <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
                     </motion.div>
                   ))}
                 </div>
               </motion.div>
 
-              {/* Floating Badge */}
+              {/* Floating Badges */}
               <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -right-4 -top-4 rounded-xl border border-green-500/30 bg-card/90 backdrop-blur-sm p-3 shadow-lg shadow-green-500/10"
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -right-6 -top-6 rounded-2xl border border-emerald-500/30 bg-black/80 backdrop-blur-md p-3.5 shadow-xl shadow-emerald-500/10"
               >
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  <span className="text-sm font-medium text-foreground">SOC 2 Certified</span>
+                <div className="flex items-center gap-2.5">
+                  <Shield className="h-5 w-5 text-emerald-500" />
+                  <span className="text-sm font-bold text-foreground">AES-256 Secured</span>
                 </div>
               </motion.div>
 
               <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-4 bottom-8 rounded-xl border border-amber-500/30 bg-card/90 backdrop-blur-sm p-3 shadow-lg shadow-amber-500/10"
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -left-6 bottom-12 rounded-2xl border border-amber-500/30 bg-black/80 backdrop-blur-md p-3.5 shadow-xl shadow-amber-500/10"
               >
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-amber-500" />
-                  <span className="text-sm font-medium text-foreground">GDPR Compliant</span>
+                <div className="flex items-center gap-2.5">
+                  <Lock className="h-5 w-5 text-amber-500" />
+                  <span className="text-sm font-bold text-foreground">Strict Access Control</span>
                 </div>
               </motion.div>
             </div>
           </motion.div>
 
-          {/* Right Content - Feature Grid */}
+          {/* ── Right Content - Feature Grid ── */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid gap-4 sm:grid-cols-2"
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="grid gap-5 sm:grid-cols-2"
           >
             {securityFeatures.map((feature, index) => (
               <motion.div
@@ -157,26 +164,28 @@ export function SecuritySection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.03, y: -4 }}
-                className="group relative rounded-xl overflow-hidden"
+                whileHover={{ scale: 1.04, y: -4 }}
+                className="group relative rounded-2xl overflow-hidden shadow-lg"
               >
                 {/* Animated border on hover */}
-                <div className="absolute inset-0 rounded-xl p-px overflow-hidden">
+                <div className="absolute inset-0 rounded-2xl p-[1.5px] overflow-hidden bg-white/5 group-hover:bg-transparent transition-colors">
                   <div 
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{
-                      background: `linear-gradient(var(--border-angle, 0deg), transparent 40%, rgba(245, 158, 11, 0.5) 50%, transparent 60%)`,
+                      background: `linear-gradient(var(--border-angle, 0deg), transparent 40%, rgba(245, 158, 11, 0.7) 50%, transparent 60%)`,
                       animation: 'border-rotate 3s linear infinite',
                     }}
                   />
                 </div>
                 
-                <div className="relative h-full border border-border/50 bg-card/80 backdrop-blur-sm p-5 rounded-xl transition-all group-hover:border-transparent group-hover:shadow-lg group-hover:shadow-amber-500/5">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 transition-transform group-hover:scale-110">
-                    <feature.icon className="h-5 w-5 text-amber-500" />
+                <div className="relative h-full border border-transparent bg-black/60 backdrop-blur-md p-6 rounded-2xl transition-all">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-500/20">
+                    <feature.icon className="h-6 w-6 text-amber-500" />
                   </div>
-                  <h3 className="mb-1 font-semibold text-foreground group-hover:text-amber-500 transition-colors">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="mb-2 text-lg font-bold text-foreground group-hover:text-amber-400 transition-colors">{feature.title}</h3>
+                  <p className="text-sm font-medium text-muted-foreground leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -186,5 +195,5 @@ export function SecuritySection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

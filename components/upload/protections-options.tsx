@@ -41,8 +41,8 @@ function OptionRow({
       className={cn(
         "flex items-start justify-between gap-4 rounded-xl border p-4 transition-colors duration-150",
         checked && !disabled
-          ? "border-primary/25 bg-primary/5"
-          : "border-border bg-card",
+          ? "border-amber-500/30 bg-amber-500/10 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]"
+          : "border-white/5 bg-black/40 backdrop-blur-xl",
         disabled && "opacity-50",
       )}
     >
@@ -51,8 +51,8 @@ function OptionRow({
           className={cn(
             "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
             checked && !disabled
-              ? "border-primary/20 bg-primary/10 text-primary"
-              : "border-border bg-muted/50 text-muted-foreground",
+              ? "border-amber-500/30 bg-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.2)] text-amber-500"
+              : "border-white/5 bg-white/5 text-muted-foreground",
           )}
         >
           {icon}
@@ -103,10 +103,10 @@ export default function ProtectionOptions({
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-white/5 bg-black/40 backdrop-blur-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
-        <ShieldCheck className="h-4 w-4 text-primary" />
+      <div className="flex items-center gap-2.5 border-b border-white/5 px-5 py-4">
+        <ShieldCheck className="h-4 w-4 text-amber-500" />
         <h2 className="text-[13.5px] font-semibold text-foreground">
           Protection settings
         </h2>
@@ -137,8 +137,8 @@ export default function ProtectionOptions({
           className={cn(
             "rounded-xl border p-4 transition-colors duration-150",
             settings.addWatermark
-              ? "border-primary/25 bg-primary/5"
-              : "border-border bg-card opacity-60",
+              ? "border-amber-500/30 bg-amber-500/10 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]"
+              : "border-white/5 bg-black/40 backdrop-blur-xl opacity-60",
           )}
         >
           <div className="flex items-center gap-2 mb-3">
@@ -155,7 +155,7 @@ export default function ProtectionOptions({
                 onChange={(e) => handleTextChange(e.target.value)}
                 disabled={!settings.encryptFile || !settings.addWatermark}
                 placeholder="© Your Name"
-                className="h-9 border-border bg-background text-[13px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-primary/30 disabled:opacity-40"
+                className="h-9 border-white/5 bg-background text-[13px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-amber-500/50 disabled:opacity-40"
               />
               <p className="text-[11.5px] text-muted-foreground">
                 This text will repeat diagonally across protected media.
@@ -163,7 +163,7 @@ export default function ProtectionOptions({
             </div>
 
             {/* Preview */}
-            <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded-lg border border-border">
+            <div className="relative h-24 w-40 shrink-0 overflow-hidden rounded-lg border border-white/5">
               <Image
                 width={400}
                 height={300}
@@ -198,3 +198,4 @@ export default function ProtectionOptions({
     </div>
   );
 }
+

@@ -73,12 +73,12 @@ function BentoCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
       whileHover={{ scale: 1.02, y: -4 }}
-      className={`group relative rounded-2xl overflow-hidden ${
+      className={`group relative rounded-3xl overflow-hidden ${
         feature.size === "large"
           ? "md:col-span-2 md:row-span-2"
           : feature.size === "medium"
@@ -87,56 +87,56 @@ function BentoCard({
       }`}
     >
       {/* Animated border */}
-      <div className="absolute inset-0 rounded-2xl p-px overflow-hidden">
+      <div className="absolute inset-0 rounded-3xl p-px overflow-hidden bg-white/5 group-hover:bg-transparent transition-colors">
         <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
           style={{
-            background: `linear-gradient(var(--border-angle, 0deg), transparent 40%, rgba(245, 158, 11, 0.5) 50%, transparent 60%)`,
-            animation: "border-rotate 3s linear infinite",
+            background: `linear-gradient(var(--border-angle, 0deg), transparent 40%, rgba(245, 158, 11, 0.7) 50%, transparent 60%)`,
+            animation: "border-rotate 4s linear infinite",
           }}
         />
       </div>
 
       {/* Card content */}
-      <div className="relative h-full p-6 md:p-8 rounded-2xl bg-card/80 border border-border/50 backdrop-blur-sm transition-all duration-300 group-hover:border-amber-500/30 group-hover:shadow-lg group-hover:shadow-amber-500/5">
+      <div className="relative h-full p-8 rounded-3xl bg-black/60 border border-transparent backdrop-blur-xl transition-all duration-300 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
         {/* Gradient background */}
         <div
-          className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl`}
+          className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl pointer-events-none`}
         />
 
         {/* Glow effect */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col h-full">
           {/* Icon */}
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
-            <Icon className="w-6 h-6 text-amber-500" />
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300 shadow-lg shadow-amber-500/10">
+            <Icon className="w-7 h-7 text-amber-500" />
           </div>
 
           {/* Title */}
-          <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-amber-500 transition-colors duration-300">
+          <h3 className="text-2xl font-bold text-foreground mb-3 group-hover:text-amber-400 transition-colors duration-300">
             {feature.title}
           </h3>
 
           {/* Description */}
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-sm font-medium text-muted-foreground leading-relaxed flex-1">
             {feature.description}
           </p>
 
           {/* Dashboard preview for large cards */}
           {feature.size === "large" && (
-            <div className="mt-6 rounded-lg bg-muted/30 border border-border/30 p-4 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-xs text-muted-foreground">
+            <div className="mt-8 rounded-xl bg-white/5 border border-white/10 p-5 opacity-60 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-md">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Live Preview
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-8 rounded bg-muted/50 animate-pulse"
+                    className="h-10 rounded-lg bg-white/10 animate-pulse"
                     style={{ animationDelay: `${i * 0.2}s` }}
                   />
                 ))}
@@ -151,39 +151,43 @@ function BentoCard({
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-32 overflow-hidden">
+    <section id="features" className="relative py-32 overflow-hidden bg-background">
       {/* Background */}
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 bg-dot-pattern opacity-30" />
+      <div className="absolute inset-0 bg-card/30" />
+      <div className="absolute inset-0 bg-dot-pattern opacity-20 pointer-events-none" />
 
       {/* Ambient glow */}
-      <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[100px]" />
-      <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[80px]" />
+      <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[130px] animate-pulse pointer-events-none" style={{ animationDuration: '7s' }} />
+      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: '6s' }} />
 
-      <div className="relative z-10 container mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Section header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="text-center mb-20"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-medium mb-6">
-            <Zap className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-semibold mb-6 backdrop-blur-md">
+            <Zap className="w-4 h-4" />
             Powerful Features
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 text-balance">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6 leading-[1.1]">
             Everything You Need to{" "}
-            <span className="gradient-text-amber">Protect Your Content</span>
+            <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-amber-700">
+              Protect Your Content
+            </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl font-medium text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             A comprehensive suite of tools designed for creators, agencies, and
             enterprises who take content security seriously.
           </p>
         </motion.div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 auto-rows-fr">
           {features.map((feature, index) => (
             <BentoCard key={feature.title} feature={feature} index={index} />
           ))}

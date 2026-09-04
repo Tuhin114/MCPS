@@ -1,11 +1,13 @@
+
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAllUsers } from "@/services/media.service";
 import { AllUsers } from "@/types/media";
 
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
   try {
-    const supabase = await createClient();
 
     const {
       data: { user },
@@ -46,3 +48,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+

@@ -51,10 +51,10 @@ export default function UploadArea({
       onDragLeave={() => setIsDragging(false)}
       onClick={!isFull ? handleClick : undefined}
       className={cn(
-        "relative cursor-pointer rounded-2xl border-2 border-dashed px-8 py-12 transition-all duration-200",
+        "relative cursor-pointer rounded-2xl border-2 border-dashed border-white/20 px-8 py-12 transition-all duration-200",
         isDragging
-          ? "border-primary/60 bg-primary/5"
-          : "border-border hover:border-primary/40 hover:bg-accent/40",
+          ? "border-amber-500/60 bg-amber-500/10 shadow-[0_0_40px_rgba(245,158,11,0.2)]"
+          : "border-white/10 hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] hover:bg-white/[0.04]",
         isFull && "cursor-default opacity-60 pointer-events-none",
       )}
     >
@@ -73,14 +73,14 @@ export default function UploadArea({
           className={cn(
             "flex h-16 w-16 items-center justify-center rounded-2xl border transition-colors duration-200",
             isDragging
-              ? "border-primary/40 bg-primary/10"
-              : "border-border bg-card",
+              ? "border-amber-500/40 bg-amber-500/20"
+              : "border-white/10 bg-black/50 backdrop-blur-xl border-white/5",
           )}
         >
           <CloudUpload
             className={cn(
               "h-8 w-8 transition-colors",
-              isDragging ? "text-primary" : "text-muted-foreground",
+              isDragging ? "text-amber-500" : "text-muted-foreground",
             )}
           />
         </div>
@@ -98,7 +98,7 @@ export default function UploadArea({
           <Button
             size="sm"
             variant="outline"
-            className="h-8 rounded-lg border-border bg-card px-4 text-[13px] font-medium hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+            className="h-8 rounded-lg border-white/10 bg-black/50 backdrop-blur-xl border-white/5 px-4 text-[13px] font-medium hover:border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-500"
             onClick={(e) => {
               e.stopPropagation();
               handleClick();
@@ -111,8 +111,8 @@ export default function UploadArea({
             className={cn(
               "rounded-full border px-3 py-1 text-[12px] font-medium tabular-nums",
               fileCount > 0
-                ? "border-primary/20 bg-primary/8 text-primary"
-                : "border-border bg-muted/50 text-muted-foreground",
+                ? "border-amber-500/20 bg-amber-500/10 text-amber-500"
+                : "border-white/10 bg-white/[0.05] text-muted-foreground",
             )}
           >
             {fileCount} / 5 selected
@@ -122,3 +122,4 @@ export default function UploadArea({
     </div>
   );
 }
+

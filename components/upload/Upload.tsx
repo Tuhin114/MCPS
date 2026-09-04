@@ -126,7 +126,7 @@ export default function UploadMediaPage() {
                   Selected files
                 </h2>
                 {files.length > 0 && (
-                  <span className="rounded-full border border-primary/20 bg-primary/8 px-2 py-0.5 text-[11px] font-medium text-primary">
+                  <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
                     {files.length} / 5
                   </span>
                 )}
@@ -156,7 +156,7 @@ export default function UploadMediaPage() {
                         .querySelector<HTMLInputElement>('input[type="file"]')
                         ?.click()
                     }
-                    className="aspect-square cursor-pointer rounded-xl border border-dashed border-border bg-muted/20 transition-colors hover:border-primary/30 hover:bg-primary/5 flex flex-col items-center justify-center gap-1.5"
+                    className="aspect-square cursor-pointer rounded-xl border border-dashed border-white/5 bg-white/[0.02] border-white/5 transition-colors hover:border-amber-500/30 hover:bg-amber-500/5 flex flex-col items-center justify-center gap-1.5"
                   >
                     <span className="text-[11px] text-muted-foreground/60">
                       + Add
@@ -165,7 +165,7 @@ export default function UploadMediaPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-border bg-muted/20 py-10 text-center">
+              <div className="rounded-xl border border-dashed border-white/5 bg-white/[0.02] border-white/5 py-10 text-center">
                 <p className="text-[13px] font-medium text-muted-foreground">
                   No files selected yet
                 </p>
@@ -183,9 +183,9 @@ export default function UploadMediaPage() {
           />
 
           {/* Footer action */}
-          <div className="flex items-center justify-between border-t border-border pt-5">
+          <div className="flex items-center justify-between border-t border-white/5 pt-5">
             <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              <ShieldCheck className="h-3.5 w-3.5 text-amber-500" />
               <span>
                 {protectionSettings.encryptFile
                   ? "AES-256 encryption enabled"
@@ -200,7 +200,7 @@ export default function UploadMediaPage() {
               size="default"
               className={cn(
                 "gap-2 rounded-lg px-6 text-[13.5px] font-semibold transition-all",
-                "bg-primary text-primary-foreground hover:bg-primary/90",
+                "bg-amber-500 text-amber-500-foreground hover:bg-amber-500/90",
                 "disabled:opacity-40",
               )}
             >
@@ -215,3 +215,4 @@ export default function UploadMediaPage() {
     </div>
   );
 }
+

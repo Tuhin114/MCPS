@@ -1,3 +1,5 @@
+
+
 // app/api/notifications/mark-all-read/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";

@@ -15,13 +15,13 @@ const actions = [
 
 export function QuickActions() {
   return (
-    <section className="rounded-xl border border-border bg-card">
-      <header className="px-5 py-4">
-        <h2 className="text-sm font-semibold tracking-tight">Quick Actions</h2>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">Jump straight to common tasks</p>
+    <section className="rounded-2xl border border-white/5 bg-black/40 backdrop-blur-xl shadow-2xl overflow-hidden">
+      <header className="px-6 py-5 bg-white/[0.02] border-b border-white/5">
+        <h2 className="text-base font-bold tracking-tight text-foreground">Quick Actions</h2>
+        <p className="mt-1 text-xs font-medium text-muted-foreground/80">Jump straight to common tasks</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 border-t border-border p-5 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action, i) => (
           <MotionLink
             key={action.title}
@@ -30,19 +30,19 @@ export function QuickActions() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: i * 0.05 }}
             whileHover="hover"
-            className="group relative flex flex-col items-start gap-3 overflow-hidden rounded-xl border border-border bg-surface-secondary p-4 text-left outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-surface-hover hover:shadow-lg hover:shadow-black/30 focus-visible:border-primary/50"
+            className="group relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left outline-none transition-all duration-300 hover:bg-white/[0.04] hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-500/30"
           >
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.05] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-500/[0.05] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <motion.div
-              variants={{ hover: { y: -3 } }}
+              variants={{ hover: { y: -3, scale: 1.05 } }}
               transition={{ type: "spring", stiffness: 300, damping: 18 }}
-              className="relative flex size-10 items-center justify-center rounded-lg bg-surface-hover ring-1 ring-border transition-colors duration-300 group-hover:bg-primary/15 group-hover:ring-primary/30"
+              className="relative flex size-12 items-center justify-center rounded-xl bg-black/50 border border-white/5 transition-colors duration-300 group-hover:border-amber-500/20 group-hover:bg-amber-500/10"
             >
-              <action.icon className="size-5 text-muted-foreground transition-colors duration-300 group-hover:text-primary" />
+              <action.icon className="size-5.5 text-muted-foreground transition-colors duration-300 group-hover:text-amber-500" />
             </motion.div>
             <div className="relative">
-              <p className="text-sm font-medium text-foreground">{action.title}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{action.description}</p>
+              <p className="text-sm font-bold text-foreground group-hover:text-amber-50 transition-colors">{action.title}</p>
+              <p className="mt-1 text-xs font-medium text-muted-foreground/70">{action.description}</p>
             </div>
           </MotionLink>
         ))}
