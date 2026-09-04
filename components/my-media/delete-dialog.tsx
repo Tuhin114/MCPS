@@ -13,28 +13,45 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDeleteMedia } from "@/hooks/useMediaAction";
 import { MyMediaItem } from "@/types/media";
+import { toast } from "sonner";
 
 interface DeleteDialogProps {
   item: MyMediaItem;
   onDelete?: (item: MyMediaItem) => void;
   trigger?: React.ReactNode;
+  onDialogClose?: () => void;
 }
 
-export function DeleteDialog({ item, onDelete, trigger }: DeleteDialogProps) {
+export function DeleteDialog({
+  item,
+  onDelete,
+  trigger,
+  onDialogClose,
+}: DeleteDialogProps) {
   const [open, setOpen] = useState(false);
-  const { mutate: deleteMedia, isPending } = useDeleteMedia();
+  const { mutateAsync: deleteMediaAsync, isPending } = useDeleteMedia();
 
-  const handleDelete = () => {
-    deleteMedia(item.id, {
-      onSuccess: () => {
-        onDelete?.(item); // fire optimistic removal if parent still wants it
-        setOpen(false);
-      },
-    });
+  const handleOpenChange = (val: boolean) => {
+    if (isPending) return;
+    setOpen(val);
+    if (!val) onDialogClose?.();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteMediaAsync(item.id);
+      onDelete?.(item); // fire optimistic removal if parent still wants it
+      setOpen(false);
+      onDialogClose?.();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete media",
+      );
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !isPending && setOpen(v)}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button variant="destructive" size="sm">
@@ -53,7 +70,7 @@ export function DeleteDialog({ item, onDelete, trigger }: DeleteDialogProps) {
         <div className="flex justify-end gap-2 pt-4 border-t border-border">
           <Button
             variant="outline"
-            onClick={() => setOpen(false)}
+            onClick={() => handleOpenChange(false)}
             disabled={isPending}
           >
             Cancel

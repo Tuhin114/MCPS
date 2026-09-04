@@ -1,13 +1,25 @@
 import sharp from "sharp";
 import TextToSVG from "text-to-svg";
 import path from "path";
+import {
+  WATERMARK_CONFIG,
+  buildTileGrid,
+  computeFontSize,
+} from "./watermark-config";
 
+/**
+ * Renders `watermarkText` as a uniform, tiled overlay onto an image.
+ *
+ * Tile spacing and font size scale with the image's own dimensions (see
+ * watermark-config.ts), so density looks the same on a 400px thumbnail and
+ * a 6000px photo — the old version used a fixed pixel step that bunched up
+ * or spread out depending on image size.
+ */
 export async function applyImageWatermark(
   buffer: Buffer,
   watermarkText: string,
 ): Promise<Buffer> {
   const image = sharp(buffer);
-
   const metadata = await image.metadata();
 
   const width = metadata.width ?? 1200;
@@ -17,29 +29,23 @@ export async function applyImageWatermark(
     path.join(process.cwd(), "public", "fonts", "Inter_18pt-Bold.ttf"),
   );
 
-  const fontSize = Math.max(Math.min(width, height) / 18, 24);
+  const fontSize = computeFontSize(width, height);
+  const tiles = buildTileGrid(width, height);
 
-  let paths = "";
+  const svgPath = textToSVG.getD(watermarkText, { fontSize });
 
-  for (let y = -200; y < height + 200; y += 220) {
-    for (let x = -200; x < width + 200; x += 320) {
-      const svgPath = textToSVG.getD(watermarkText, {
-        fontSize,
-      });
-
-      paths += `
+  const paths = tiles
+    .map(
+      ({ x, y }) => `
         <g
-          transform="translate(${x}, ${y}) rotate(-30)"
-          opacity="0.15"
+          transform="translate(${x.toFixed(1)}, ${y.toFixed(1)}) rotate(${WATERMARK_CONFIG.rotationDegrees})"
+          opacity="${WATERMARK_CONFIG.opacity}"
         >
-          <path
-            d="${svgPath}"
-            fill="white"
-          />
+          <path d="${svgPath}" fill="white" />
         </g>
-      `;
-    }
-  }
+      `,
+    )
+    .join("");
 
   const svg = `
     <svg

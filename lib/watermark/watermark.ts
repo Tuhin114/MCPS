@@ -1,6 +1,5 @@
 import { applyImageWatermark } from "./watermark-image";
 import { applyPdfWatermark } from "./watermark-pdf";
-
 export async function applyWatermark(
   buffer: Buffer,
   mimeType: string,

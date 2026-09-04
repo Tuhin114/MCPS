@@ -54,12 +54,11 @@ export default function MyMediaPage() {
       if (selectedStatus === "all") {
         return matchesSearch && matchesFileType;
       } else if (selectedStatus === "public") {
-        return (
-          matchesSearch &&
-          matchesFileType &&
-          item.is_encrypted === false &&
-          item.is_watermarked === false
-        );
+        // Fixed: this used to check is_encrypted === false && is_watermarked
+        // === false, which had nothing to do with the real is_public
+        // column — it just matched "unprotected" files. Now it checks the
+        // actual public-link flag.
+        return matchesSearch && matchesFileType && item.is_public === true;
       } else if (selectedStatus === "encrypted") {
         return (
           matchesSearch &&
@@ -121,6 +120,7 @@ export default function MyMediaPage() {
     encrypted: boolean,
     watermarked: boolean,
     watermarkText: string,
+    isPublic: boolean,
   ) => {
     setLocalOverrides((prev) => ({
       ...prev,
@@ -129,6 +129,7 @@ export default function MyMediaPage() {
         is_encrypted: encrypted,
         is_watermarked: watermarked,
         watermark_text: watermarkText,
+        is_public: isPublic,
       },
     }));
     // Toast

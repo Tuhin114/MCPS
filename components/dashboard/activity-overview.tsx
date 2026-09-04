@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
-import { Activity } from "@/types/dashboard";
+import { Activity } from "@/lib/mcps-data";
 
 const dotStyles: Record<string, string> = {
   success: "bg-green-500 group-hover:shadow-green-500/50",

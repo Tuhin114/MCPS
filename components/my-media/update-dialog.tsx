@@ -13,9 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2 } from "lucide-react";
+import { Loader2, Globe, Check, Copy } from "lucide-react";
 import { useUpdateMedia } from "@/hooks/useMediaAction";
 import { MyMediaItem } from "@/types/media";
+import { isWatermarkSupported } from "@/lib/watermark/watermark-support";
 import { toast } from "sonner";
 
 interface UpdateDialogProps {
@@ -26,6 +27,7 @@ interface UpdateDialogProps {
     encrypted: boolean,
     watermarked: boolean,
     watermarkText: string,
+    isPublic: boolean,
   ) => void; // optional optimistic callback
   trigger?: React.ReactNode;
   onDialogClose?: () => void;
@@ -42,8 +44,21 @@ export function UpdateDialog({
   const [encrypted, setEncrypted] = useState(item.is_encrypted ?? false);
   const [watermarked, setWatermarked] = useState(item.is_watermarked ?? false);
   const [watermarkText, setWatermarkText] = useState(item.watermark_text || "");
+  const [isPublic, setIsPublic] = useState(item.is_public ?? false);
+  const [copied, setCopied] = useState(false);
 
-  const { mutate: updateMedia, isPending } = useUpdateMedia();
+  const { mutateAsync: updateMediaAsync, isPending } = useUpdateMedia();
+
+  // Watermarking only actually does anything for images and PDFs today
+  // (see lib/watermark/watermark.ts) — everything else is a silent no-op
+  // server-side, so the toggle is disabled here instead of implying a
+  // feature that won't apply.
+  const watermarkSupported = isWatermarkSupported(item.mime_type);
+
+  const publicLink =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/public/${item.id}`
+      : `/public/${item.id}`;
 
   const handleOpenChange = (val: boolean) => {
     if (isPending) return;
@@ -65,13 +80,20 @@ export function UpdateDialog({
       setWatermarked(false);
     }
 
-    // Encryption ON => enable watermark
-    if (checked) {
+    // Encryption ON => enable watermark (only if this file type supports it)
+    if (checked && watermarkSupported) {
       setWatermarked(true);
     }
   };
 
   const handleWatermarkChange = (checked: boolean) => {
+    if (!watermarkSupported) {
+      toast.warning(
+        `Watermarking isn't available for ${item.mime_type || "this file type"} yet — currently supported for images and PDFs only.`,
+      );
+      return;
+    }
+
     if (!encrypted) {
       toast.warning("Enable encryption before enabling watermark protection.");
       return;
@@ -80,29 +102,54 @@ export function UpdateDialog({
     setWatermarked(checked);
   };
 
-  const handleUpdate = () => {
+  const handlePublicChange = (checked: boolean) => {
+    if (checked) {
+      toast.warning(
+        "Anyone with the link will be able to view and download this file — no sign-in required. This applies even if the file is encrypted or watermarked.",
+      );
+    }
+    setIsPublic(checked);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicLink);
+      setCopied(true);
+      toast.success("Public link copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy link — copy it manually");
+    }
+  };
+
+  const handleUpdate = async () => {
     if (!name.trim()) return;
 
-    updateMedia(
-      {
+    try {
+      await updateMediaAsync({
         id: item.id,
         payload: {
           file_name: name,
           is_encrypted: encrypted,
           is_watermarked: watermarked,
-          watermark_text: watermarked ? watermarkText : null,
+          watermark_text: watermarked ? watermarkText : undefined,
+          is_public: isPublic,
         },
-      },
-      {
-        onSuccess: () => {
-          // Fire optimistic callback so MyMedia local state stays in sync
-          // until the next query invalidation resolves
-          onUpdate?.(item, name, encrypted, watermarked, watermarkText);
-          setOpen(false);
-          onDialogClose?.();
-        },
-      },
-    );
+      });
+
+      // Only reached if the mutation actually resolved successfully.
+      // (The success toast is fired by the parent's onUpdate handler in
+      // MyMedia.tsx — not duplicated here.)
+      onUpdate?.(item, name, encrypted, watermarked, watermarkText, isPublic);
+      setOpen(false);
+      onDialogClose?.();
+    } catch (err) {
+      // Previously a failed update just left the dialog open with no
+      // feedback at all. Now it's explicit.
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update media",
+      );
+    }
   };
 
   return (
@@ -156,21 +203,26 @@ export function UpdateDialog({
           {/* Watermark */}
           <div className="space-y-3 border-t border-border pt-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="watermark" className="font-medium">
+              <Label
+                htmlFor="watermark"
+                className={`font-medium ${!watermarkSupported ? "text-muted-foreground" : ""}`}
+              >
                 Watermark
               </Label>
               <Switch
                 id="watermark"
                 checked={watermarked}
                 onCheckedChange={handleWatermarkChange}
-                disabled={isPending || !encrypted}
+                disabled={isPending || !encrypted || !watermarkSupported}
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Add a watermark to protect content
+              {watermarkSupported
+                ? "Add a watermark to protect content"
+                : "Not available for this file type — supported for images and PDFs only"}
             </p>
 
-            {watermarked && (
+            {watermarked && watermarkSupported && (
               <div className="space-y-2 pt-2">
                 <Label htmlFor="watermark-text">Watermark Text</Label>
                 <Input
@@ -181,6 +233,52 @@ export function UpdateDialog({
                   className="bg-surface border-border text-xs"
                   disabled={isPending || !encrypted || !watermarked}
                 />
+              </div>
+            )}
+          </div>
+
+          {/* Public Link */}
+          <div className="space-y-3 border-t border-border pt-4">
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="public-link"
+                className="font-medium flex items-center gap-1.5"
+              >
+                <Globe className="h-3.5 w-3.5" />
+                Public Link
+              </Label>
+              <Switch
+                id="public-link"
+                checked={isPublic}
+                onCheckedChange={handlePublicChange}
+                disabled={isPending}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Anyone with the link can view this file — no account needed.
+            </p>
+
+            {isPublic && (
+              <div className="flex items-center gap-2 pt-1">
+                <Input
+                  readOnly
+                  value={publicLink}
+                  className="bg-surface border-border text-xs font-mono"
+                  onFocus={(e) => e.target.select()}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={handleCopyLink}
+                  className="shrink-0"
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </Button>
               </div>
             )}
           </div>
